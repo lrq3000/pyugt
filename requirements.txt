@@ -1,0 +1,5 @@
+PILLOW
+keyboard
+mss
+pytesseract
+googltrans
