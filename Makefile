@@ -7,8 +7,6 @@
 	alltests
 	all
 	flake8
-	test
-	testsetup
     testsetuppost
     testtox
 	distclean
@@ -38,21 +36,12 @@ all:
 flake8:
 	@+flake8 -j 8 --count --statistics --exit-zero .
 
-test:
-     # Build the Cython extension
-	python setup.py build_ext --inplace
-     # Run the tests
-	#python -m unittest discover tests
-
 testnose:
     nosetests -vv --with-coverage
 
 testtox:
     # Test for multiple Python versions
 	tox --skip-missing-interpreters -p all
-
-testsetup:
-	python setup.py check --metadata --restructuredtext --strict
 
 testsetuppost:
 	twine check "dist/*"
@@ -84,9 +73,8 @@ install:
 
 build:
 	@+make prebuildclean
-	@+make testsetup
 	@+python setup.py sdist bdist_wheel
-	@+python setup.py bdist_wininst
+	#@+python setup.py bdist_wininst
     pymake testsetuppost  # @+make does not work here, dunno why
 
 pypi:
