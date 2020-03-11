@@ -1,6 +1,8 @@
 # pyugt - Python Universal Game Translator
 
-[![PyPI-Status](https://img.shields.io/pypi/v/pyugt.svg)](https://pypi.org/project/pyugt) [![PyPI-Versions](https://img.shields.io/pypi/pyversions/pyugt.svg?logo=python&logoColor=white)](https://pypi.org/project/pyugt) [![PyPI-Downloads](https://img.shields.io/pypi/dm/pyugt.svg?logo=python&logoColor=white)](https://pypi.org/project/pyugt)
+[![PyPI-Status](https://img.shields.io/pypi/v/pyugt.svg)](https://pypi.org/project/pyugt)
+[![PyPI-Versions](https://img.shields.io/pypi/pyversions/pyugt.svg?logo=python&logoColor=white)](https://pypi.org/project/pyugt)
+[![PyPI-Downloads](https://img.shields.io/pypi/dm/pyugt.svg?logo=python&logoColor=white)](https://pypi.org/project/pyugt)
 
 pyugt is a pure-python universal game translator: it takes screenshots from a region you select on your screen, uses OCR (via Tesseract v5) to extract the characters, then feeds it to a machine translator (Google Translate) to then show you a translated text.
 
