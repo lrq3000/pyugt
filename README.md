@@ -4,7 +4,7 @@
 [![PyPI-Versions](https://img.shields.io/pypi/pyversions/pyugt.svg?logo=python&logoColor=white)](https://pypi.org/project/pyugt)
 [![PyPI-Downloads](https://img.shields.io/pypi/dm/pyugt.svg?logo=python&logoColor=white)](https://pypi.org/project/pyugt)
 
-pyugt is a python universal game translator: it takes screenshots from a region you select on your screen, uses OCR (via Tesseract v5) to extract the characters, then feeds it to a machine translator (Google Translate) to then show you a translated text.
+pyugt is a python universal game translator: it takes screenshots from a region you select on your screen, uses OCR (via Tesseract v5) to extract the characters, then feeds them to a machine translator (Google Translate) to then show you a translated text.
 
 Since it works directly on images, there is no need to hack the game or anything to access the text. It is also cross-platform (support for Windows and Linux - MacOSX does not yet work because hotkeys are not supported for now).
 
@@ -44,6 +44,8 @@ Note the software was tested on Windows 10 x64 with Python 3.7 (Anaconda). It sh
 
 * Finally, use the hotkey to translate what is shown in the region (default: `CTRL+F3`). This will display a window with the original text and the translated text. **Make sure to close this window before requesting another translation, else it won't work** (because of the GUI waiting loop).
 
+Tip: if the software has difficulties in recognizing the characters (you get gibberish and non-letters characters instead of words), first try to redefine the region with CTRL+F2 and make sure the region includes all text with some margin but not too much of the background, and if this does not help, try to make the game screen bigger. The bigger the characters, the easier for the OCR to work.
+
 **IMPORTANT NOTE:** The software is still in alpha stage (and may forever stay in this state). It IS working, but sometimes the hotkeys glitch and they do not work anymore. If this happens, simply focus the Python console and hit `CTRL+C` to force quit the app, then launch it again. The selected region is saved in the config file, so you don't have to redo this step everytime.
 
 ## Shortcomings & advantages
@@ -56,7 +58,7 @@ On the other hand, there are several advantages to our approach:
 
 * it's cross-platform (Windows & Linux currently, MacOSX could be supported if we find a python module to register global hotkeys on it),
 
-* we use Tesseract so that OCR is done locally (instead of via the Google Cloud Vision API) so we only send text which is a lot smaller footprint and thus less expensive (generally free),
+* we use Tesseract so that OCR is done locally (instead of via the Google Cloud Vision API) so we only send text which is a lot smaller footprint and thus less expensive (generally free), and a big advantage is that it's possible to freely resize the game window to a bigger size, with bigger characters improving the OCR recognition, and also no downscaling/quality reduction is necessary since there is no image transfer,
 
 * Regions can be selected, so that unnecessary screen objects that may confuse the OCR can be elimited with a carefully selected region,
 
