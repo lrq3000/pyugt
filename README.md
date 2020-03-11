@@ -8,15 +8,28 @@ pyugt is a pure-python universal game translator: it takes screenshots from a re
 
 Since it works directly on images, there is no need to hack the game or anything to access the text. It is also cross-platform (support for Windows and Linux - MacOSX does not yet work because hotkeys are not supported for now).
 
+Here is a demo:
+![demo](doc/demo.gif)
+
 Of course, since the translation is done by a machine, don't expect a very nice translation, but for games where no translation is available, it can be sufficient to understand the gist and be able to play.
 
 This software was inspired by the amazing work of Seth Robinson on [UGT (Universal Game Translator)](https://github.com/SethRobinson/UGT).
 
 ## How to install & update
 
+First, install Tesseract v5, installers are provided by [UB Mannheim](https://github.com/UB-Mannheim/tesseract/wiki). Make sure to install the additional languages you want to translate from (eg, Japanese).
+
+Also, you need to install a Python interpreter. [Anaconda](https://www.anaconda.com/distribution/) is a good one.
+
+Then, install this software:
+
 `pip install --upgrade pyugt`
 
-Then install Tesseract v5, installers are provided by [UB Mannheim](https://github.com/UB-Mannheim/tesseract/wiki).
+Or maybe what can be more easy if you want to edit the config file, is to download the archive from Github, unzip anywhere, cd in the folder and type:
+
+`python setup.py develop`
+
+Note the software was tested on Windows 10 x64 with Python 3.7 (Anaconda). It should also work on other Python versions and on Linux but this was not tested (please let me know if you try on Linux!).
 
 ## How to use
 
