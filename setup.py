@@ -44,6 +44,5 @@ setup(name = "pyugt",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
     ],
-    ext_modules = extensions,
 )
 
