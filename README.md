@@ -27,6 +27,8 @@ Then install Tesseract v5, installers are provided by [UB Mannheim](https://gith
 
 * Finally, use the hotkey to translate what is shown in the region (default: `CTRL+F3`). This will display a window with the original text and the translated text. **Make sure to close this window before requesting another translation, else it won't work** (because of the GUI waiting loop).
 
+**IMPORTANT NOTE:** The software is still in alpha stage (and may forever stay in this state). It IS working, but sometimes the hotkeys glitch and they do not work anymore. If this happens, simply focus the Python console and hit `CTRL+C` to force quit the app, then launch it again. The selected region is saved in the config file, so you don't have to redo this step everytime.
+
 ## Shortcomings & advantages
 
 Compared to UGT, the translated text is not overlaid over a screenshot of the original text. This could maybe be done as Tesseract provides some functions (`image_to_boxes()` or `image_to_osd()` or `image_to_data()`). PRs are very welcome if anyone would like to give it a try!
@@ -46,13 +48,3 @@ On the other hand, there are several advantages to our approach:
 ## License
 
 This software is made by Stephen Larroque and is published under the MIT Public License.
-
-
-
-
-
-
-
-
-
-
