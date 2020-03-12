@@ -251,30 +251,37 @@ def translateRegion(sct, config, configFile):
 
 
 ### Main program
+def main():
+    # Path to current script (to find the config file)
+    curpath = os.path.dirname(os.path.abspath(__file__))
+    # Load config file
+    config = configparser.ConfigParser()
+    configFile = os.path.join(curpath, 'config.ini')
+    config.read(configFile)
 
-# Load config file
-config = configparser.ConfigParser()
-configFile = 'config.ini'
-config.read(configFile)
+    # Load config file into memory variables
+    PATH_tesseract_bin = config['DEFAULT']['PATH_tesseract_bin']
+    langsource_ocr = config['DEFAULT']['lang_source_ocr']
+    langsource_trans = config['DEFAULT']['lang_source_trans']
+    langtarget = config['DEFAULT']['lang_target']
 
-# Load config file into memory variables
-PATH_tesseract_bin = config['DEFAULT']['PATH_tesseract_bin']
-langsource_ocr = config['DEFAULT']['lang_source_ocr']
-langsource_trans = config['DEFAULT']['lang_source_trans']
-langtarget = config['DEFAULT']['lang_target']
+    # Load up the screenshot capture module
+    # We need to load up mss only once, else if it's inside the functions it will fail on second call after being closed in the first call
+    # It's also faster to initialize it only once, per https://python-mss.readthedocs.io/examples.html#benchmark
+    sct = mss.mss()
+    # Set global hotkeys, loading from config file
+    keyboard.add_hotkey(config['DEFAULT']['hotkey_set_region_capture'], selectRegion, args=(sct, config, configFile))
+    keyboard.add_hotkey(config['DEFAULT']['hotkey_translate_region_capture'], translateRegion, args=(sct, config, configFile))
 
-# Load up the screenshot capture module
-# We need to load up mss only once, else if it's inside the functions it will fail on second call after being closed in the first call
-# It's also faster to initialize it only once, per https://python-mss.readthedocs.io/examples.html#benchmark
-sct = mss.mss()
-# Set global hotkeys, loading from config file
-keyboard.add_hotkey(config['DEFAULT']['hotkey_set_region_capture'], selectRegion, args=(sct, config, configFile))
-keyboard.add_hotkey(config['DEFAULT']['hotkey_translate_region_capture'], translateRegion, args=(sct, config, configFile))
+    # Main waiting loop (we wait for hotkeys to be pressed)
+    print('Press CTRL+C or close the window to quit')
+    while 1:
+        time.sleep(1)
 
-# Main waiting loop (we wait for hotkeys to be pressed)
-print('Press CTRL+C or close the window to quit')
-while 1:
-    time.sleep(1)
+    # Exit gracefully if no exception until this point
+    return 0
 
-# Exit gracefully if no exception until this point
-sys.exit(0)
+
+if __name__ == "__main__":
+    rtncode = main()
+    sys.exit(rtncode)

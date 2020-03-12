@@ -36,7 +36,11 @@ Note the software was tested on Windows 10 x64 with Python 3.7 (Anaconda). It sh
 * First, you need to configure the config file `config.ini`. A sample config file is provided with the software that should work fine on Windows, but on other platforms or in some cases you may need to edit it, particularly to setup the path to the Tesseract binaries.
   The config file also allows you to change the hotkeys and the monitor to screenshot from, and a few other things such as the source and target languages (by default, the source is japanese and target is english).
 
-* Then, you can launch the script:
+* Then, you can launch the script from a terminal/console:
+
+`pyugt`
+
+or:
 
 `python -m pyugt`
 
