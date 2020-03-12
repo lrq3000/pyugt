@@ -17,7 +17,7 @@ except ImportError:
     from distutils.extension import Extension
 
 setup(name = "pyugt",
-    version = "0.2.2",
+    version = "0.2.3",
     description = "Pure-Python Universal Game Translator",
     author = "Stephen Larroque",
     author_email = "lrq3000@gmail.com",
