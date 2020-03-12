@@ -1,5 +1,5 @@
-PILLOW
-keyboard
-mss
-pytesseract
-googltrans
+PILLOW>=6.1.0
+keyboard>=0.13.4
+mss>=5.0.0
+pytesseract>=0.3.3
+googltrans>=2.4.0
