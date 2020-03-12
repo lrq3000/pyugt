@@ -179,12 +179,6 @@ def selectRegion(sct, config, configFile, quitOnSelect=False):
             config.write(cfg)
 
 def translateRegion(sct, config, configFile):
-    def show_errorbox(msg):
-        root = tkinter.Tk()
-        root.withdraw()
-        messagebox.showerror("Error", msg)
-        root.destroy()  # need to manually destroy the main window, else tk shows an empty window alongside the messagebox... Solution from: https://stackoverflow.com/a/57523108/1121352
-
     if config['DEFAULT']['debug'] == 'True':
         print('translateRegion triggered')
     # First check a region was set, else raise an error
@@ -256,6 +250,18 @@ def selectAndTranslateRegion(sct, config, configFile):
     selectRegion(sct, config, configFile, quitOnSelect=True)
     translateRegion(sct, config, configFile)
 
+def show_errorbox(msg):
+    """Show an error box"""
+    root = tkinter.Tk()
+    root.withdraw()
+    messagebox.showerror("Error", msg)
+    root.destroy()  # need to manually destroy the main window, else tk shows an empty window alongside the messagebox... Solution from: https://stackoverflow.com/a/57523108/1121352
+
+def show_errorbox_exception(msg):
+    """Show both an error box and raise an Exception"""
+    show_errorbox(msg)
+    raise Exception(msg)
+
 
 ### Main program
 def main():
@@ -280,14 +286,14 @@ def main():
         configFile = os.path.join(curpath, 'config.ini')
     # Check the path exists
     if not os.path.exists(configFile):
-        raise Exception('Specified configuration file (%s) does not exist!' % configFile)
+        show_errorbox_exception('Specified configuration file (%s) does not exist!' % configFile)
     # Load up the config file in memory
     config.read(configFile)
 
     # Load config file into memory variables
     PATH_tesseract_bin = config['DEFAULT']['PATH_tesseract_bin']
     if not os.path.exists(PATH_tesseract_bin):
-        raise Exception("Can't find Tesseract v5 binaries, please update the config.ini file to point to the binaries! If it's not installed, on Windows installers are provided by UB Mannheim's at: https://github.com/UB-Mannheim/tesseract/wiki")
+        show_errorbox_exception("Can't find Tesseract v5 binaries, please update the config.ini file to point to the binaries! If it's not installed, on Windows installers are provided by UB Mannheim's at: https://github.com/UB-Mannheim/tesseract/wiki")
     # Add Tesseract binary to the path (so that the user does not need to do it in their OS)
     pytesseract.pytesseract.tesseract_cmd = PATH_tesseract_bin
     # Get the list of available languages (selected by user at Tesseract install)
