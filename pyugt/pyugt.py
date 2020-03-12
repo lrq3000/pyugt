@@ -49,16 +49,6 @@ import pytesseract
 from googletrans import Translator
 
 
-### Initialize variables
-PATH_tesseract_bin = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-
-# Add Tesseract binary to the path (so that the user does not need to do it in their OS)
-pytesseract.pytesseract.tesseract_cmd = PATH_tesseract_bin
-
-# Get the list of available languages (selected by user at Tesseract install)
-teslangs = [os.path.split(x)[1].split('.')[0] for x in glob.glob(os.path.join(os.path.dirname(PATH_tesseract_bin), 'tessdata','*.traineddata'))]
-
-
 ### Auxiliary functions
 
 class showPILandSelect(object):
@@ -194,6 +184,10 @@ def translateRegion(sct, config, configFile):
     if 'INTERNAL' not in config or 'region' not in config['INTERNAL'] or ast.literal_eval(config['INTERNAL']['region']) is None:
         show_errorbox("Error: please first select a region to capture from (use hotkey %s)" % config['DEFAULT']['hotkey_set_region_capture'])
         return
+    # Load config file into memory variables
+    langsource_ocr = config['DEFAULT']['lang_source_ocr']
+    langsource_trans = config['DEFAULT']['lang_source_trans']
+    langtarget = config['DEFAULT']['lang_target']
     # Grab whole desktop screenshot
     # Grab screenshot
     x0,y0,x1,y1 = ast.literal_eval(config['INTERNAL']['region'])
@@ -252,6 +246,7 @@ def translateRegion(sct, config, configFile):
 
 ### Main program
 def main():
+    print('pyugt - Python Universal Game Translator - started')
     # Path to current script (to find the config file)
     curpath = os.path.dirname(os.path.abspath(__file__))
     # Load config file
@@ -261,9 +256,13 @@ def main():
 
     # Load config file into memory variables
     PATH_tesseract_bin = config['DEFAULT']['PATH_tesseract_bin']
-    langsource_ocr = config['DEFAULT']['lang_source_ocr']
-    langsource_trans = config['DEFAULT']['lang_source_trans']
-    langtarget = config['DEFAULT']['lang_target']
+    if not os.path.exists(PATH_tesseract_bin):
+        raise Exception("Can't find Tesseract v5 binaries, please update the config.ini file to point to the binaries!")
+    # Add Tesseract binary to the path (so that the user does not need to do it in their OS)
+    pytesseract.pytesseract.tesseract_cmd = PATH_tesseract_bin
+    # Get the list of available languages (selected by user at Tesseract install)
+    teslangs = [os.path.split(x)[1].split('.')[0] for x in glob.glob(os.path.join(os.path.dirname(PATH_tesseract_bin), 'tessdata','*.traineddata'))]
+    print('Languages available for OCR: %s' % repr(teslangs))
 
     # Load up the screenshot capture module
     # We need to load up mss only once, else if it's inside the functions it will fail on second call after being closed in the first call
@@ -271,10 +270,12 @@ def main():
     sct = mss.mss()
     # Set global hotkeys, loading from config file
     keyboard.add_hotkey(config['DEFAULT']['hotkey_set_region_capture'], selectRegion, args=(sct, config, configFile))
+    print('Hit %s to set the region to capture.' % config['DEFAULT']['hotkey_set_region_capture'])
     keyboard.add_hotkey(config['DEFAULT']['hotkey_translate_region_capture'], translateRegion, args=(sct, config, configFile))
+    print('Hit %s to translate the region (make sure to close the translation window before requesting another one.' % config['DEFAULT']['hotkey_translate_region_capture'])
 
     # Main waiting loop (we wait for hotkeys to be pressed)
-    print('Press CTRL+C or close the window to quit')
+    print('Press CTRL+C or close this window to quit.')
     while 1:
         time.sleep(1)
 
