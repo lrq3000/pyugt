@@ -53,7 +53,7 @@ from googletrans import Translator
 
 class showPILandSelect(object):
     """Display a screenshot in fullscreen and allow to select a rectangle region inside"""
-    def __init__(self, pilImage):
+    def __init__(self, pilImage, quitOnSelect=False):
         # Prepare Tkinter fullscreen image/screenshot display
         root = tkinter.Tk()
         self.root = root
@@ -82,10 +82,15 @@ class showPILandSelect(object):
         self.canvas = canvas
         canvas.bind("<ButtonPress-1>", self.on_button_press)
         canvas.bind("<B1-Motion>", self.on_move_press)
-        canvas.bind("<ButtonRelease-1>", self.on_button_release)
 
         canvas.create_text(w/2,h/2,fill="red",font="Times 20 italic bold",
                         text="Please select the region to capture text to translate\n(use mouse left click).\nPress ESCAPE when done.")
+
+        # Quit directly after selecting?
+        if quitOnSelect:
+            root.bind("<ButtonRelease-1>", lambda e: (root.withdraw(), root.quit()))
+        else:
+            canvas.bind("<ButtonRelease-1>", self.on_button_release)
 
         root.mainloop()
 
@@ -138,7 +143,7 @@ def showPIL(pilImage):
     imagesprite = canvas.create_image(w/2,h/2,image=image)
     root.mainloop()
 
-def selectRegion(sct, config, configFile):
+def selectRegion(sct, config, configFile, quitOnSelect=False):
     """Region-based selection: take a whole desktop screenshot and allow the user to select the region from where to take further screenshots (easier than manipulating the OS window manager to draw rectangles on the REAL screen).
     The result is saved in the config file directly."""
 
@@ -158,7 +163,7 @@ def selectRegion(sct, config, configFile):
         mss.tools.to_png(sct_img.rgb, sct_img.size, output=imgtemppath)
 
     # Display screenshot and allow user to select a region
-    appregionselect = showPILandSelect(img)
+    appregionselect = showPILandSelect(img, quitOnSelect=quitOnSelect)
     # Get the selected rectangle's coordinates
     rectcoords = appregionselect.get_rect_coords()
     # Need to manually destroy Tk root window, else if we try to display it twice it will fail with a weird exception
@@ -244,6 +249,12 @@ def translateRegion(sct, config, configFile):
     root.mainloop()
 
 
+def selectAndTranslateRegion(sct, config, configFile):
+    """Wrapper to select a region and translate it directly after, this streamlines the process"""
+    selectRegion(sct, config, configFile, quitOnSelect=True)
+    translateRegion(sct, config, configFile)
+
+
 ### Main program
 def main():
     print('pyugt - Python Universal Game Translator - started')
@@ -272,7 +283,9 @@ def main():
     keyboard.add_hotkey(config['DEFAULT']['hotkey_set_region_capture'], selectRegion, args=(sct, config, configFile))
     print('Hit %s to set the region to capture.' % config['DEFAULT']['hotkey_set_region_capture'])
     keyboard.add_hotkey(config['DEFAULT']['hotkey_translate_region_capture'], translateRegion, args=(sct, config, configFile))
-    print('Hit %s to translate the region (make sure to close the translation window before requesting another one.' % config['DEFAULT']['hotkey_translate_region_capture'])
+    print('Hit %s to translate the region (make sure to close the translation window before requesting another one).' % config['DEFAULT']['hotkey_translate_region_capture'])
+    keyboard.add_hotkey(config['DEFAULT']['hotkey_set_and_translate_region_capture'], selectAndTranslateRegion, args=(sct, config, configFile))
+    print('Hit %s to set AND translate a region.' % config['DEFAULT']['hotkey_set_and_translate_region_capture'])
 
     # Main waiting loop (we wait for hotkeys to be pressed)
     print('Press CTRL+C or close this window to quit.')

@@ -44,11 +44,13 @@ or:
 
 `python -m pyugt`
 
-* Then, use the hotkey to first select a region to capture from (default hotkey: `CTRL+F2`). The selected region does not need to be very precise, but need to contain the text to translate.
+* Then, use the hotkey to first select a region to capture from (default hotkey: `CTRL+SHIFT+F3`). The selected region does not need to be very precise, but need to contain the text to translate.
 
 * Finally, use the hotkey to translate what is shown in the region (default: `CTRL+F3`). This will display a window with the original text and the translated text. **Make sure to close this window before requesting another translation, else it won't work** (because of the GUI waiting loop).
 
-Tip: if the software has difficulties in recognizing the characters (you get gibberish and non-letters characters instead of words), first try to redefine the region with CTRL+F2 and make sure the region includes all text with some margin but not too much of the background (the tighter around the text, the less the OCR will be confused by the background, this can help a lot!), and if this does not help, try to make the game screen bigger. The bigger the characters, the easier for the OCR to work.
+* Tip: if the software has difficulties in recognizing the characters (you get gibberish and non-letters characters instead of words), first try to redefine the region with CTRL+F2 and make sure the region includes all text with some margin but not too much of the background (the tighter around the text, the less the OCR will be confused by the background, this can help a lot!). You can use the region selection and translation hotkey to do both in a streamlined fashion (default: `CTRL+F2`).
+
+* Tip2: Try to make the game screen bigger. The bigger the characters, the easier for the OCR to work.
 
 **IMPORTANT NOTE:** The software is still in alpha stage (and may forever stay in this state). It IS working, but sometimes the hotkeys glitch and they do not work anymore. If this happens, simply focus the Python console and hit `CTRL+C` to force quit the app, then launch it again. The selected region is saved in the config file, so you don't have to redo this step everytime.
 
