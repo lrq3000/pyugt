@@ -9,7 +9,7 @@ pyugt is a python universal game translator: it takes screenshots from a region 
 Since it works directly on images, there is no need to hack the game or anything to access the text. It is also cross-platform (support for Windows and Linux - MacOSX does not yet work because hotkeys are not supported for now).
 
 Here is a demo:
-![demo](doc/demo.gif)
+![demo](https://github.com/lrq3000/pyugt/raw/master/doc/demo.gif)
 
 Of course, since the translation is done by a machine, don't expect a very nice translation, but for games where no translation is available, it can be sufficient to understand the gist and be able to play.
 
