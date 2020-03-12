@@ -20,6 +20,8 @@ import configparser
 # For path handling
 import glob
 import os
+# for commandline arguments handling
+import optparse
 # To display screenshots
 import sys
 # For the waiting loop
@@ -257,12 +259,29 @@ def selectAndTranslateRegion(sct, config, configFile):
 
 ### Main program
 def main():
+    # Commandline arguments
+    parser = optparse.OptionParser()
+    parser.add_option("-c", "--config", dest="config", default=None,
+                        help="Path to the config file (default: config.ini)", metavar="FILE")
+    (options, args) = parser.parse_args()
+    configFileArg = options.config
+
+    # Print description message on startup
     print('pyugt - Python Universal Game Translator - started')
     # Path to current script (to find the config file)
     curpath = os.path.dirname(os.path.abspath(__file__))
     # Load config file
     config = configparser.ConfigParser()
-    configFile = os.path.join(curpath, 'config.ini')
+    if configFileArg:
+        # Specified by user
+        configFile = os.path.abspath(configFileArg)
+    else:
+        # Default path
+        configFile = os.path.join(curpath, 'config.ini')
+    # Check the path exists
+    if not os.path.exists(configFile):
+        raise Exception('Specified configuration file (%s) does not exist!' % configFile)
+    # Load up the config file in memory
     config.read(configFile)
 
     # Load config file into memory variables
