@@ -8,4 +8,6 @@
 
 * BUG: When no text is detected and an error messagebox is shown, the hotkeys stop working after, the program needs to be closed down and reopened. Maybe caused by a problem with the tkinter root not being closed/destroyed properly since we simply return.
 
-* CRITICAL FEATURE: Make combination hotkey: select region, and directly after (no need to hit escape) translate that region.
+* Find if a japanese -> english offline translator exists (if possible under opensource and cross-platform), to reduce the dependency on Google Translator.
+
+

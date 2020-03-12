@@ -287,7 +287,7 @@ def main():
     # Load config file into memory variables
     PATH_tesseract_bin = config['DEFAULT']['PATH_tesseract_bin']
     if not os.path.exists(PATH_tesseract_bin):
-        raise Exception("Can't find Tesseract v5 binaries, please update the config.ini file to point to the binaries!")
+        raise Exception("Can't find Tesseract v5 binaries, please update the config.ini file to point to the binaries! If it's not installed, on Windows installers are provided by UB Mannheim's at: https://github.com/UB-Mannheim/tesseract/wiki")
     # Add Tesseract binary to the path (so that the user does not need to do it in their OS)
     pytesseract.pytesseract.tesseract_cmd = PATH_tesseract_bin
     # Get the list of available languages (selected by user at Tesseract install)
