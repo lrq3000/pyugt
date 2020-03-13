@@ -1,2 +1,2 @@
 from .pyugt import main
-main()
+from ._version import __version__

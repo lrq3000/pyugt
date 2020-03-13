@@ -16,8 +16,25 @@ except ImportError:
     from distutils.core import setup
     from distutils.extension import Extension
 
+import codecs, os, re
+
+# Get version, better than importing the module because can fail if the requirements aren't met
+# See https://packaging.python.org/guides/single-sourcing-package-version/
+curpath = os.path.abspath(os.path.dirname(__file__))
+def read(*parts):
+    with codecs.open(os.path.join(*parts), 'r') as fp:
+        return fp.read()
+def find_version(*file_paths):
+    version_file = read(*file_paths)
+    version_match = re.search(r"^__version__\s*=\s*['\"]([^'\"]*)['\"]",
+                              version_file, re.M)
+    if version_match:
+        return version_match.group(1)
+    raise RuntimeError("Unable to find version string.")
+
+
 setup(name = "pyugt",
-    version = "0.3.2",
+    version = find_version(curpath, "pyugt", "_version.py"),
     description = "Pure-Python Universal Game Translator",
     author = "Stephen Larroque",
     author_email = "lrq3000@gmail.com",

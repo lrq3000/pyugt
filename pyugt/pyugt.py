@@ -38,6 +38,9 @@ from tkinter import messagebox
 # To show textboxes with scrollbars
 import tkinter.scrolledtext
 
+## Internal auxiliary scripts
+from _version import __version__
+
 ## External modules
 # For global hotkeys (TODO: find another library to support MacOSX)
 import keyboard
@@ -273,7 +276,7 @@ def main():
     configFileArg = options.config
 
     # Print description message on startup
-    print('pyugt - Python Universal Game Translator - started')
+    print('pyugt - Python Universal Game Translator v%s - started' % __version__)
     # Path to current script (to find the config file)
     curpath = os.path.dirname(os.path.abspath(__file__))
     # Load config file
