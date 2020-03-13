@@ -15,8 +15,12 @@
 ## Native python imports
 # To store and parse lists from configparser
 import ast
+# To write UTF8 characters in log files
+import codecs
 # To parse config file
 import configparser
+# To use as IDs for each entry in OCR and translation log files
+import datetime
 # For path handling
 import glob
 import os
@@ -302,17 +306,31 @@ def translateRegion(sct, config, configFile):
     # Translate using Google Translate through the googletrans (unofficial) wrapper module
     translator = Translator()
     transobj = translator.translate(ocrtext, src=langsource_trans, dest=langtarget)
+    transtext = transobj.text
 
     if config['DEFAULT']['debug'] == 'True':
         print('Translated text:')
-        print(transobj.text)
+        print(transtext)
+
+    # Save OCR'ed text and translation in logs if specified. The same datetime will be written for both, so that they can be matched externally.
+    curdatetime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    if config['DEFAULT']['log_ocr'] != 'None':
+        with codecs.open(config['DEFAULT']['log_ocr'], 'a', 'utf-8-sig') as f:
+            f.write("-> OCR at %s:\n" % curdatetime)
+            f.write(ocrtext)
+            f.write("\n---------------------\n")
+    if config['DEFAULT']['log_translation'] != 'None':
+        with codecs.open(config['DEFAULT']['log_translation'], 'a', 'utf-8-sig') as f:
+            f.write("-> Translation at %s:\n" % curdatetime)
+            f.write(transtext)
+            f.write("\n---------------------\n")
 
     # Show the translation box
     if prev_root is not None:
         # Close previous window if still open
         # TODO: instead of closing, reinsert text (so we keep window position)
         prev_root.closeWindow()
-    twindow = TranslationBox(ocrtext, transobj.text)
+    twindow = TranslationBox(ocrtext, transtext)
     prev_root = twindow
 
 

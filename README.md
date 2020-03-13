@@ -13,6 +13,10 @@ Here is a demo:
 
 Of course, since the translation is done by a machine, don't expect a very nice translation, but for games where no translation is available, it can be sufficient to understand the gist and be able to play.
 
+The software can also be useful to human translators, as it is possible to enable logging of OCR'ed text in the config file, so that all captured text will be saved in a log file that can later be used as the source for a manual translation.
+
+The software is also not limited to games, but can be applied to anything that displays text on screen.
+
 This software was inspired by the amazing work of Seth Robinson on [UGT (Universal Game Translator)](https://github.com/SethRobinson/UGT).
 
 ## How to install & update
@@ -59,6 +63,36 @@ or:
 * Tip3: you can specify the path to a config file by using the `-c` or `--config` argument: `pyugt -c <path_to_config_file>`
 
 **IMPORTANT NOTE:** The software is still in alpha stage (and may forever stay in this state). It IS working, but sometimes the hotkeys glitch and they do not work anymore. If this happens, simply focus the Python console and hit `CTRL+C` to force quit the app, then launch it again. The selected region is saved in the config file, so you don't have to redo this step everytime.
+
+## Options
+
+Here is a sample configuration file, with comments for the various additional options (such as logs for the OCR'ed text and translated text):
+
+```ini
+[DEFAULT]
+# Path to Tesseract v5 binary. Easily install it from UB Mannheim installers: https://github.com/UB-Mannheim/tesseract/wiki
+path_tesseract_bin = C:\Program Files\Tesseract-OCR\tesseract.exe
+# Source language to translate from, for OCR. Both the Optical Recognition Character and the translator will search specifically for strings in this language, this reduces the amount of false positives (eg, translating strings in other languages that are more prominent or bigger on-screen). Language code can be found inside Tesseract tessdata folder (depends on what languages you chose in the installer).
+lang_source_ocr = jpn
+# Source language to translate from, for Google Translate. Use Google Translate language codes here. Look at googletrans doc in googletrans.LANGUAGES: https://readthedocs.org/projects/py-googletrans/downloads/pdf/latest/
+lang_source_trans = ja
+# Target language to translate to. Must be a Google Translate language code (NOT a Tesseract code!).
+lang_target = en
+# Hotkey to set the region on screen to capture future screenshots from. The region does not need to be precise, but must contain the region where text is likely to be found.
+hotkey_set_region_capture = ctrl+shift+F3
+# Hotkey to translate from the selected region
+hotkey_translate_region_capture = ctrl+F3
+# Hotkey to set a region AND translate it directly on mouse click release. This is useful for games where the contrast between the text and background is bad (eg, transparent dialog box), so reselecting a tight region for each dialogue may yield better results, this is a faster way to do that with one shortcut instead of 2.
+hotkey_set_and_translate_region_capture = ctrl+F2
+# On which monitor the screen region capture should display? If you have only one screen, leave this to 0 (first monitor)
+monitor = 0
+# Save all OCR'ed text into a log file? Set a path or file name different than None to activate. This can be very useful for human translators to gather game text data.
+log_ocr = None
+# Save all translated text into a log file? Set a path or file name different than None to activate.
+log_translation = None
+# Show debug information
+debug = False
+```
 
 ## Shortcomings & advantages
 
