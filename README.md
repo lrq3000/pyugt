@@ -17,19 +17,23 @@ This software was inspired by the amazing work of Seth Robinson on [UGT (Univers
 
 ## How to install & update
 
-First, install Tesseract v5, installers are provided by [UB Mannheim](https://github.com/UB-Mannheim/tesseract/wiki). Make sure to install the additional languages you want to translate from (eg, Japanese).
+1. First, install Tesseract v5, installers are provided by [UB Mannheim](https://github.com/UB-Mannheim/tesseract/wiki). Make sure to install the additional languages you want to translate from (eg, Japanese).
 
-Also, you need to install a Python interpreter. [Anaconda](https://www.anaconda.com/distribution/) is a good one.
-
-Then, install this software:
-
-`pip install --upgrade pyugt`
-
-Or maybe what can be more easy if you want to edit the config file, is to download the archive from Github, unzip anywhere, cd in the folder and type:
-
-`python setup.py develop`
-
-Note the software was tested on Windows 10 x64 with Python 3.7 (Anaconda). It should also work on other Python versions and on Linux but this was not tested (please let me know if you try on Linux!).
+2. Then install pyugt:
+   
+   * Either on Windows x64, there is a prepackaged binary you can [download here](https://github.com/lrq3000/pyugt/releases/download/v0.3.2/pyugt_v0.3.2_bin_win64.zip).
+   
+   * Either for other platform or if you want to run from sourcecode, you need to install a Python interpreter. [Anaconda](https://www.anaconda.com/distribution/) is a good one.
+     
+     Then, install this software:
+     
+     `pip install --upgrade pyugt`
+     
+     Or maybe what can be more easy if you want to edit the config file, is to download the archive from Github, unzip anywhere, cd in the folder and type:
+     
+     `python setup.py develop`
+     
+     Note the software was tested on Windows 10 x64 with Python 3.7 (Anaconda). It should also work on other Python versions and on Linux but this was not tested (please let me know if you try on Linux!).
 
 ## How to use
 
@@ -51,6 +55,8 @@ or:
 * Tip: if the software has difficulties in recognizing the characters (you get gibberish and non-letters characters instead of words), first try to redefine the region with CTRL+F2 and make sure the region includes all text with some margin but not too much of the background (the tighter around the text, the less the OCR will be confused by the background, this can help a lot!). You can use the region selection and translation hotkey to do both in a streamlined fashion (default: `CTRL+F2`).
 
 * Tip2: Try to make the game screen bigger. The bigger the characters, the easier for the OCR to work.
+
+* Tip3: you can specify the path to a config file by using the `-c` or `--config` argument: `pyugt -c <path_to_config_file>`
 
 **IMPORTANT NOTE:** The software is still in alpha stage (and may forever stay in this state). It IS working, but sometimes the hotkeys glitch and they do not work anymore. If this happens, simply focus the Python console and hit `CTRL+C` to force quit the app, then launch it again. The selected region is saved in the config file, so you don't have to redo this step everytime.
 
