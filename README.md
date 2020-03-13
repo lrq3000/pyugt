@@ -6,7 +6,7 @@
 
 pyugt is a python universal game translator: it takes screenshots from a region you select on your screen, uses OCR (via Tesseract v5) to extract the characters, then feeds them to a machine translator (Google Translate) to then show you a translated text.
 
-Since it works directly on images, there is no need to hack the game or anything to access the text. It is also cross-platform (support for Windows and Linux - MacOSX does not yet work because hotkeys are not supported on this platform for now).
+Since it works directly on images, there is no need to hack the game or anything to access the text. It is also cross-platform (support for Windows and Linux and experimentally on MacOSX.
 
 Here is a demo:
 ![demo](https://github.com/lrq3000/pyugt/raw/master/doc/demo.gif)
