@@ -329,7 +329,14 @@ def translateRegion(sct, config, configFile):
     if prev_root is not None:
         # Close previous window if still open
         # TODO: instead of closing, reinsert text (so we keep window position)
-        prev_root.closeWindow()
+        try:
+            prev_root.closeWindow()
+        except RuntimeError as exc:
+            # TODO: sometimes when showing a translationbox and then an errorbox, closing the error box will also close the translationbox, hence destroying the root but prev_root will still point to it. If this happens and we try to destroy it again preemptively as we do here, a RuntimeError will be raised, so we just skip. The root cause of this race condition should be fixed instead of this hacky workaround.
+            if config['DEFAULT']['debug'] == 'True':
+                print('Error when trying to pre-emptively closing prev_root: ')
+                print(exc)
+            pass
     twindow = TranslationBox(ocrtext, transtext)
     prev_root = twindow
 
@@ -344,6 +351,7 @@ def show_errorbox(msg):
     root = tkinter.Toplevel()
     root.withdraw()
     messagebox.showerror("Error", msg)
+    root.quit()
     root.destroy()  # need to manually destroy the main window, else tk shows an empty window alongside the messagebox... Solution from: https://stackoverflow.com/a/57523108/1121352
 
 def show_errorbox_exception(msg):
