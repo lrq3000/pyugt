@@ -48,9 +48,9 @@ or:
 
 `python -m pyugt`
 
-* Then, use the hotkey to first select a region to capture from (default hotkey: `CTRL+SHIFT+F3`). The selected region does not need to be very precise, but need to contain the text to translate.
+* Then, use the hotkey to select a region to capture from (default hotkey: `CTRL+SHIFT+F3`). The selected region does not need to be very precise, but need to contain the text to translate.
 
-* Finally, use the hotkey to translate what is shown in the region (default: `CTRL+F3`). This will display a window with the original text and the translated text.
+* Finally, use the hotkey to translate what is shown in the region (default: `CTRL+F3`). This will display a window with the original text and the translated text. Repeat as many times as you need, you don't need to reselect the region to translate again.
 
 * Tip: if the software has difficulties in recognizing the characters (you get gibberish and non-letters characters instead of words), first try to redefine the region with CTRL+F2 and make sure the region includes all text with some margin but not too much of the background (the tighter around the text, the less the OCR will be confused by the background, this can help a lot!). You can use the region selection and translation hotkey to do both in a streamlined fashion (default: `CTRL+F2`).
 
