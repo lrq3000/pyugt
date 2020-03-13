@@ -54,7 +54,7 @@ setup(name = "pyugt",
         'keyboard>=0.13.4',
         'mss>=5.0.0',
         'pytesseract>=0.3.3',
-        'googltrans>=2.4.0',
+        'googletrans>=2.4.0',
     ],
 )
 
