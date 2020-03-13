@@ -1,8 +1,6 @@
 # TODO
 
-* Version number in console output at program start (set `__version` in init.py and then in setup.py fetch version from init.py)
-
-* Use argparse to allow to specify a config file at any location.
+* 
 
 * Explore tesseract osd extraction to see if it's possible to retain the position (and hence potentially overlaying the translated text over a screenshot of the game).
 
