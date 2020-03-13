@@ -208,16 +208,37 @@ def translateRegion(sct, config, configFile):
             threading.Thread.__init__(self)
             self.ocrtext = ocrtext
             self.transtext = transtext
+            self.config = config
+            self.configFile = configFile
             self.start()
         
         def closeWindow(self):
             self.root.withdraw()
             self.root.quit()
 
+        def save_geometry(self, event):
+            """Save size and position of window when moved around to reopen later at the same position"""
+            # Inspired by https://stackoverflow.com/a/43160322/1121352
+            if not 'INTERNAL' in self.config:
+                self.config['INTERNAL'] = {}
+            self.config['INTERNAL']['translationbox_position'] = self.root.geometry()
+            with open(self.configFile, 'w') as cfg:
+                self.config.write(cfg)
+
+        def load_geometry(self):
+            """Load size and position of window from config file"""
+            if 'INTERNAL' in self.config and 'translationbox_position' in self.config['INTERNAL']:
+                self.root.geometry(self.config['INTERNAL']['translationbox_position'])
+
         def run(self):
             root = tkinter.Tk()
             self.root = root
+            # Clean up window on close
             root.protocol("WM_DELETE_WINDOW", self.closeWindow)
+            # Load position if one is saved in config file
+            self.load_geometry()
+            # Save size and position in config on move
+            root.bind("<Configure>", self.save_geometry)
             # Title and default window size
             root.title("pyugt translation")
             root.geometry('300x500')
