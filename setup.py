@@ -50,7 +50,7 @@ setup(name = "pyugt",
         "Topic :: Utilities",
         "License :: OSI Approved :: MIT License",
         "Operating System :: Microsoft :: Windows",
-        #'Operating System :: MacOS :: MacOS X',  # hopefully in the future if we get hotkeys to work on this platform
+        'Operating System :: MacOS :: MacOS X',
         "Operating System :: POSIX :: Linux",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",

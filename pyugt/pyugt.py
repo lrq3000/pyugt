@@ -26,6 +26,8 @@ import optparse
 import sys
 # For the waiting loop
 import time
+# To display Tkinter windows in a thread (and be non-blocking so that shortcuts still work)
+import threading
 # To display screenshots and select a region
 if sys.version_info[0] == 2:  # the tkinter library changed it's name from Python 2 to 3.
     import Tkinter
@@ -56,16 +58,30 @@ from googletrans import Translator
 
 ### Auxiliary functions
 
+global prev_tk
+prev_tk = None
 class showPILandSelect(object):
     """Display a screenshot in fullscreen and allow to select a rectangle region inside"""
     def __init__(self, pilImage, quitOnSelect=False):
         # Prepare Tkinter fullscreen image/screenshot display
-        root = tkinter.Tk()
+        global prev_tk
+
+        # Create ONE SINGLE root Tk(), else it will fail on subsequent displays
+        if prev_tk is None:
+            prev_tk = tkinter.Tk()
+            prev_tk.overrideredirect(1)
+            prev_tk.withdraw()
+
+        # Create a Toplevel() dialog window, we can create multiple ones
+        root = tkinter.Toplevel()  # use Toplevel() instead of Tk() to reopen the same dialog multiple times, see also: https://github.com/dangillet/PythonFaqFr/blob/master/doc/tkinter.md and https://stackoverflow.com/questions/39458318/how-to-allow-a-tkinter-window-to-be-opened-multiple-times
         self.root = root
-        w, h = root.winfo_screenwidth(), root.winfo_screenheight()
+        # hide root dialog, useless
+        
         root.overrideredirect(1)
+        # Get screen size
+        w, h = root.winfo_screenwidth(), root.winfo_screenheight()
         root.geometry("%dx%d+0+0" % (w, h))
-        root.focus_set()    
+        root.focus_set()  # set window on foreground
         root.bind("<Escape>", lambda e: (e.widget.withdraw(), e.widget.quit()))
         canvas = tkinter.Canvas(root,width=w,height=h)
         canvas.pack()
@@ -127,6 +143,9 @@ class showPILandSelect(object):
         else:
             return self.canvas.bbox(self.rect)
 
+    def destroy(self):
+        self.root.destroy()
+
 def showPIL(pilImage):
     # Inspired by code by Neil from https://stackoverflow.com/a/47317411/1121352
     root = tkinter.Tk()
@@ -172,7 +191,7 @@ def selectRegion(sct, config, configFile, quitOnSelect=False):
     # Get the selected rectangle's coordinates
     rectcoords = appregionselect.get_rect_coords()
     # Need to manually destroy Tk root window, else if we try to display it twice it will fail with a weird exception
-    appregionselect.root.destroy()
+    #appregionselect.destroy()
     # Save in config
     if rectcoords is not None:
         if not 'INTERNAL' in config:
@@ -181,7 +200,49 @@ def selectRegion(sct, config, configFile, quitOnSelect=False):
         with open(configFile, 'w') as cfg:
             config.write(cfg)
 
+global prev_root
+prev_root = None
 def translateRegion(sct, config, configFile):
+    class TranslationBox(threading.Thread):
+        def __init__(self, ocrtext, transtext):
+            threading.Thread.__init__(self)
+            self.ocrtext = ocrtext
+            self.transtext = transtext
+            self.start()
+        
+        def closeWindow(self):
+            self.root.withdraw()
+            self.root.quit()
+
+        def run(self):
+            root = tkinter.Tk()
+            self.root = root
+            root.protocol("WM_DELETE_WINDOW", self.closeWindow)
+            # Title and default window size
+            root.title("pyugt translation")
+            root.geometry('300x500')
+            # Make content resizable + give same weight for both textboxes so they have the same size
+            root.grid_columnconfigure(0, weight=1)
+            root.grid_columnconfigure(1, weight=1)
+            root.grid_rowconfigure(0, weight=1)
+            root.grid_rowconfigure(1, weight=1)
+            root.resizable(True, True)
+            # Create the textboxes (with scrollbars)
+            txtsrc = tkinter.scrolledtext.ScrolledText(root)
+            txtout = tkinter.scrolledtext.ScrolledText(root)
+            # Place the textboxes vertically
+            txtsrc.grid(row=0)
+            txtout.grid(row=1)
+            # Insert the text (translation and original)
+            txtsrc.insert('1.0', self.ocrtext)  # original OCR'ed text in the 1st textbox
+            txtout.insert('1.0', self.transtext)  # translated text in the 2nd textbox
+            # Set window on foreground
+            root.focus_set()
+            # Show window
+            root.mainloop()
+
+    global prev_root  # allow to check if a previous root window is still open, and close it down
+
     if config['DEFAULT']['debug'] == 'True':
         print('translateRegion triggered')
     # First check a region was set, else raise an error
@@ -225,27 +286,13 @@ def translateRegion(sct, config, configFile):
         print('Translated text:')
         print(transobj.text)
 
-    # Show the result in a window
-    root = tkinter.Tk()
-    root.title("pyugt Translation")
-    root.geometry('300x500')
-    # Make content resizable + give same weight for both textboxes so they have the same size
-    root.grid_columnconfigure(0, weight=1)
-    root.grid_columnconfigure(1, weight=1)
-    root.grid_rowconfigure(0, weight=1)
-    root.grid_rowconfigure(1, weight=1)
-    root.resizable(True, True)
-    # Create the textboxes (with scrollbars)
-    txtsrc = tkinter.scrolledtext.ScrolledText(root)
-    txtout = tkinter.scrolledtext.ScrolledText(root)
-    # Place the textboxes vertically
-    txtsrc.grid(row=0)
-    txtout.grid(row=1)
-    # Insert the text (translation and original)
-    txtsrc.insert('1.0', ocrtext)
-    txtout.insert('1.0', transobj.text)
-    # Show window
-    root.mainloop()
+    # Show the translation box
+    if prev_root is not None:
+        # Close previous window if still open
+        # TODO: instead of closing, reinsert text (so we keep window position)
+        prev_root.closeWindow()
+    twindow = TranslationBox(ocrtext, transobj.text)
+    prev_root = twindow
 
 
 def selectAndTranslateRegion(sct, config, configFile):
@@ -255,7 +302,7 @@ def selectAndTranslateRegion(sct, config, configFile):
 
 def show_errorbox(msg):
     """Show an error box"""
-    root = tkinter.Tk()
+    root = tkinter.Toplevel()
     root.withdraw()
     messagebox.showerror("Error", msg)
     root.destroy()  # need to manually destroy the main window, else tk shows an empty window alongside the messagebox... Solution from: https://stackoverflow.com/a/57523108/1121352
