@@ -109,7 +109,7 @@ class showPILandSelect(object):
         canvas.bind("<B1-Motion>", self.on_move_press)
 
         canvas.create_text(w/2,h/2,fill="red",font="Times 20 italic bold",
-                        text="Please select the region to capture text to translate\n(use mouse left click).\nPress ESCAPE when done.")
+                        text="Please select the region to capture text to translate\n(use mouse left click).%s" ("\nPress ESCAPE when done." if not quitOnSelect else ""))
 
         # Quit directly after selecting?
         if quitOnSelect:
