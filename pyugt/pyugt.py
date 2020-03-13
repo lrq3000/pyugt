@@ -333,6 +333,7 @@ def translateRegion(sct, config, configFile):
             prev_root.closeWindow()
         except RuntimeError as exc:
             # TODO: sometimes when showing a translationbox and then an errorbox, closing the error box will also close the translationbox, hence destroying the root but prev_root will still point to it. If this happens and we try to destroy it again preemptively as we do here, a RuntimeError will be raised, so we just skip. The root cause of this race condition should be fixed instead of this hacky workaround.
+            # To reproduce: do a translation with CTRL+F2, then do it again but on a region with nothing to fail with an error box, and retry until the translation box also closes down when the error box is closed by clicking on the OK button, then finally simply try to translate a text region again and the exception should happen. Maybe it's because we destroy() the errorbox instead of just closing it?
             if config['DEFAULT']['debug'] == 'True':
                 print('Error when trying to pre-emptively closing prev_root: ')
                 print(exc)
