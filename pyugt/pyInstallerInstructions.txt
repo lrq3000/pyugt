@@ -1,0 +1,12 @@
+Instructions to build a standalone exe using pyInstaller:
+
+1. Install Anaconda
+2. Launch the Anaconda command prompt
+3. conda create -n pyugtenv python=3.7
+Note: you can the python version when newer interpreter will be released.
+4. conda activate pyugtenv
+5. pip install pyugt
+6. pip install pyinstaller
+7. pyinstaller -F -c pyugt.py
+8. Copy config.ini and config_example.ini in the dist folder
+9. Zip it and distribute
