@@ -17,7 +17,7 @@ except ImportError:
     from distutils.extension import Extension
 
 setup(name = "pyugt",
-    version = "0.3.0",
+    version = "0.3.1",
     description = "Pure-Python Universal Game Translator",
     author = "Stephen Larroque",
     author_email = "lrq3000@gmail.com",
@@ -47,7 +47,14 @@ setup(name = "pyugt",
     include_package_data=True,  # use MANIFEST.in to include config file
     packages=['pyugt'],  # to force the wheel to use the MANIFEST.in
     entry_points = {
-        'console_scripts': ['pyugt=pyugt.pyugt:main'],
-    }
+        'console_scripts': ['pyugt=pyugt.pyugt:main'],  # create a binary that will be callable directly from the console
+    },
+    install_requires=[
+        'PILLOW>=6.1.0',
+        'keyboard>=0.13.4',
+        'mss>=5.0.0',
+        'pytesseract>=0.3.3',
+        'googltrans>=2.4.0',
+    ],
 )
 
