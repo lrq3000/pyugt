@@ -4,7 +4,7 @@
 [![PyPI-Versions](https://img.shields.io/pypi/pyversions/pyugt.svg?logo=python&logoColor=white)](https://pypi.org/project/pyugt)
 [![PyPI-Downloads](https://img.shields.io/pypi/dm/pyugt.svg?logo=python&logoColor=white)](https://pypi.org/project/pyugt)
 
-pyugt is a python universal game translator: it takes screenshots from a region you select on your screen, uses OCR (via Tesseract v5) to extract the characters, then feeds them to a machine translator (Google Translate) to then show you a translated text.
+pyugt is a universal game translator coded in Python: it takes screenshots from a region you select on your screen, uses OCR (via Tesseract v5) to extract the characters, then feeds them to a machine translator (Google Translate) to then show you a translated text.
 
 Since it works directly on images, there is no need to hack the game or anything to access the text. It is also cross-platform (support for Windows and Linux and experimentally on MacOSX).
 
@@ -112,6 +112,14 @@ On the other hand, there are several advantages to our approach:
 * Regions can be selected, so that unnecessary screen objects that may confuse the OCR can be elimited with a carefully selected region,
 
 * We enforce the source and target languages, so that both the OCR and translator know what to expect, instead of trying to autodetect, which may fail particularly when there are names that may be written in another language or character form (eg, not in Kanji).
+
+## Similar projects
+
+* [Universal Game Translator](Universal Game Translator) (Windows, opensource) - the inspiration for this project.
+
+* [Capture2Text](http://capture2text.sourceforge.net/) (Windows, opensource) - OCR on-screen text, but no translation.
+
+* [OwlOCR](https://frankbyte.com/owlocr/) (MacOSX, freeware) - Similar to Capture2Text, OCR on-screen text, no translation.
 
 ## License
 
