@@ -26,7 +26,7 @@ This software was inspired by the amazing work of Seth Robinson on [UGT (Univers
 
 2. Then install pyugt:
    
-   * Either on Windows x64, there is a prepackaged binary you can [download here (look for pyugt_vx.x.x_bin_win64.zip)](https://github.com/lrq3000/pyugt/releases).
+   * Either on Windows x64, there is a prepackaged binary you can [download here (look for pyugt_vx.x.x_bin_win64.zip for 64-bit or win32 for 32-bit)](https://github.com/lrq3000/pyugt/releases).
    
    * Either for other platform or if you want to run from sourcecode, you need to install a Python interpreter. [Anaconda](https://www.anaconda.com/distribution/) is a good one.
      
