@@ -7,6 +7,18 @@ Note: you can the python version when newer interpreter will be released.
 4. conda activate pyugtenv
 5. pip install pyugt
 6. pip install pyinstaller
-7. pyinstaller -F -c pyugt.py
-8. Copy config.ini and config_example.ini in the dist folder
-9. Zip it and distribute
+
+From this step on, you can reuse the same environment each time you want to rebuild the freezed binary:
+7. cd to the folder pyugt
+8. if there is any dist or build or __pycache folder, delete them
+9. pyinstaller -F -c --hidden-import="pkg_resources.py2_warn" pyugt.py
+10. Copy config.ini and config_example.ini in the dist folder
+11. Zip it and distribute
+
+To build a 32-bit binary, simply install Miniconda3 32-bit.
+
+If when launching the executables you get the exception `ModuleNotFoundError: No module named 'pkg_resources.py2_warn'` then you need setuptools < 45.0.0
+
+pip install --upgrade 'setuptools<45.0.0'
+
+See: https://github.com/pypa/setuptools/issues/1963
