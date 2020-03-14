@@ -60,7 +60,9 @@ or:
 
 * Tip2: Try to make the game screen bigger. The bigger the characters, the easier for the OCR to work.
 
-* Tip3: you can specify the path to a config file by using the `-c` or `--config` argument: `pyugt -c <path_to_config_file>`
+* Tip3: You can specify the path to a config file by using the `-c` or `--config` argument: `pyugt -c <path_to_config_file>`
+
+* Tip4: In the translation box, it's possible to manually edit the OCR'ed text and force a new translation by clicking on the "Translate again" button. This can be useful when the OCR has wrongly detected non-letters characters.
 
 **IMPORTANT NOTE:** The software is still in alpha stage (and may forever stay in this state). It IS working, but sometimes the hotkeys glitch and they do not work anymore. If this happens, simply focus the Python console and hit `CTRL+C` to force quit the app, then launch it again. The selected region is saved in the config file, so you don't have to redo this step everytime.
 
