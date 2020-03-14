@@ -9,3 +9,5 @@
 * Add image preprocessing (to increase contrast, detect edges, etc) to improve Tesseract OCR? Maybe also use Waifu2x to upscale kanjis?
 
 * Use Travis-CI and AppVeyor to automatically build binaries across platforms?
+
+* New shortcut to translate active window, using https://github.com/asweigart/pygetwindow on Windows (would be nice to find for Linux and MacOSX)
