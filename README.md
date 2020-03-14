@@ -93,6 +93,8 @@ monitor = 0
 log_ocr = None
 # Save all translated text into a log file? Set a path or file name different than None to activate (exemple: log_translation = log_trans.txt).
 log_translation = None
+# Only capture text by OCR without translating (set this value to True, else to also translate set to False). This is useful if you only want to use pyugt as a OCR tool, or don't want to send your OCR'ed text to Google.
+ocr_only = False
 # Show debug information
 debug = False
 ```

@@ -35,7 +35,7 @@ def find_version(*file_paths):
 
 setup(name = "pyugt",
     version = find_version(curpath, "pyugt", "_version.py"),
-    description = "Pure-Python Universal Game Translator",
+    description = "Universal Game Translator from on-screen text in Python",
     author = "Stephen Larroque",
     author_email = "lrq3000@gmail.com",
     license = "MIT",

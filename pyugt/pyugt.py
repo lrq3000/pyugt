@@ -326,7 +326,10 @@ def translateRegion(sct, config, configFile):
     #os.system('tesseract -l {imgpath} {srclang} {outputtxt}'.format(imgpath=os.path.abspath(imgtemppath), srclang=langsource, outputtxt='test'))  # alternative way to generate the OCR, by commandline call directly
 
     # Translate using Google Translate through the googletrans (unofficial) wrapper module
-    transtext = gtranslate(ocrtext, langsource_trans, langtarget)
+    if config['DEFAULT']['ocr_only'] == 'True':
+        transtext = ''
+    else:
+        transtext = gtranslate(ocrtext, langsource_trans, langtarget)
 
     if config['DEFAULT']['debug'] == 'True':
         print('Translated text:')
