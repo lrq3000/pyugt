@@ -22,7 +22,7 @@ This software was inspired by the amazing work of Seth Robinson on [UGT (Univers
 
 ## How to install & update
 
-1. First, install Tesseract v5, installers are provided by [UB Mannheim](https://github.com/UB-Mannheim/tesseract/wiki). Make sure to install the additional languages you want to translate from (eg, Japanese).
+1. First, install Tesseract v5, installers are provided by [UB Mannheim](https://github.com/UB-Mannheim/tesseract/wiki). Make sure to install the additional languages you want to translate from (eg, Japanese, there is support for both horizontal and vertical Kanji).
 
 2. Then install pyugt:
    
