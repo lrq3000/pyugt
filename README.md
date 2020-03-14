@@ -105,7 +105,7 @@ UGT can also directly select and translate the active window. We dropped this fe
 
 On the other hand, there are several advantages to our approach:
 
-* it's cross-platform (Windows & Linux currently, MacOSX could be supported if we find a python module to register global hotkeys on it),
+* it's cross-platform (Windows & Linux currently, MacOSX should also supported experimentally but global hotkeys may sometimes fail because the `keyboard` module only has experimental support for this platform),
 
 * we use Tesseract so that OCR is done locally (instead of via the Google Cloud Vision API) so we only send text which is a lot smaller footprint and thus less expensive (generally free), and a big advantage is that it's possible to freely resize the game window to a bigger size, with bigger characters improving the OCR recognition, and also no downscaling/quality reduction is necessary since there is no image transfer,
 
