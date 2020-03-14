@@ -10,4 +10,8 @@
 
 * Use Travis-CI and AppVeyor to automatically build binaries across platforms?
 
-* New shortcut to translate active window, using https://github.com/asweigart/pygetwindow on Windows (would be nice to find for Linux and MacOSX)
+* New shortcut to translate active window, using https://github.com/asweigart/pygetwindow on Windows (would be nice to find for Linux and MacOSX - there is a PR for MacOSX)
+    See also:
+    https://stackoverflow.com/questions/10266281/obtain-active-window-using-python
+    https://stackoverflow.com/questions/12775136/get-window-position-and-size-in-python-with-xlib
+    https://github.com/Pithikos/winlaunch
