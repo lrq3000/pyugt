@@ -117,7 +117,7 @@ On the other hand, there are several advantages to our approach:
 
 ## Similar projects
 
-* [Universal Game Translator](Universal Game Translator) (Windows, opensource) - the inspiration for this project.
+* [Universal Game Translator](https://github.com/SethRobinson/UGT) (Windows, opensource) - the inspiration for this project.
 
 * [Capture2Text](http://capture2text.sourceforge.net/) (Windows, opensource) - OCR on-screen text, but no translation.
 
