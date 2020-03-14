@@ -234,6 +234,16 @@ def translateRegion(sct, config, configFile):
             if 'INTERNAL' in self.config and 'translationbox_position' in self.config['INTERNAL']:
                 self.root.geometry(self.config['INTERNAL']['translationbox_position'])
 
+        def translate(self):
+            # Update ocrtext with the textbox input
+            self.ocrtext = self.txtsrc.get("1.0","end-1c")  # end-1c trick from https://stackoverflow.com/questions/14824163/how-to-get-the-input-from-the-tkinter-text-box-widget
+            # Translate using Google Translate through the googletrans (unofficial) wrapper module
+            self.transtext = gtranslate(self.ocrtext, self.config['DEFAULT']['lang_source_trans'], self.config['DEFAULT']['lang_target'])
+            # Clear up the translation textbox
+            self.txtout.delete("1.0", tkinter.END)
+            # Rewrite the translation textbox content with the new translation
+            self.txtout.insert('1.0', self.transtext)
+
         def run(self):
             root = tkinter.Tk()
             self.root = root
@@ -249,22 +259,34 @@ def translateRegion(sct, config, configFile):
             # Make content resizable + give same weight for both textboxes so they have the same size
             root.grid_columnconfigure(0, weight=1)
             root.grid_columnconfigure(1, weight=1)
+            root.grid_columnconfigure(2, weight=1)
             root.grid_rowconfigure(0, weight=1)
             root.grid_rowconfigure(1, weight=1)
+            root.grid_rowconfigure(2, weight=1)
             root.resizable(True, True)
             # Create the textboxes (with scrollbars)
-            txtsrc = tkinter.scrolledtext.ScrolledText(root)
-            txtout = tkinter.scrolledtext.ScrolledText(root)
+            self.txtsrc = tkinter.scrolledtext.ScrolledText(root, undo=True)
+            self.txtout = tkinter.scrolledtext.ScrolledText(root, undo=True)
             # Place the textboxes vertically
-            txtsrc.grid(row=0)
-            txtout.grid(row=1)
+            self.txtsrc.grid(row=0)
+            self.txtout.grid(row=1)
             # Insert the text (translation and original)
-            txtsrc.insert('1.0', self.ocrtext)  # original OCR'ed text in the 1st textbox
-            txtout.insert('1.0', self.transtext)  # translated text in the 2nd textbox
+            self.txtsrc.insert('1.0', self.ocrtext)  # original OCR'ed text in the 1st textbox
+            self.txtout.insert('1.0', self.transtext)  # translated text in the 2nd textbox
+            # Create a button to allow user to manually edit the OCR'ed text and manually force translation again
+            self.buttontrans = tkinter.Button(root, text='Translate again', command=self.translate)
+            self.buttontrans.grid(row=3)
             # Set window on foreground
             root.focus_set()
             # Show window
             root.mainloop()
+
+    def gtranslate(ocrtext, langsource_trans, langtarget):
+        """Translate using Google Translate through the googletrans (unofficial) wrapper module"""
+        translator = Translator()
+        transobj = translator.translate(ocrtext, src=langsource_trans, dest=langtarget)
+        transtext = transobj.text
+        return transtext
 
     global prev_root  # allow to check if a previous root window is still open, and close it down
 
@@ -304,9 +326,7 @@ def translateRegion(sct, config, configFile):
     #os.system('tesseract -l {imgpath} {srclang} {outputtxt}'.format(imgpath=os.path.abspath(imgtemppath), srclang=langsource, outputtxt='test'))  # alternative way to generate the OCR, by commandline call directly
 
     # Translate using Google Translate through the googletrans (unofficial) wrapper module
-    translator = Translator()
-    transobj = translator.translate(ocrtext, src=langsource_trans, dest=langtarget)
-    transtext = transobj.text
+    transtext = gtranslate(ocrtext, langsource_trans, langtarget)
 
     if config['DEFAULT']['debug'] == 'True':
         print('Translated text:')

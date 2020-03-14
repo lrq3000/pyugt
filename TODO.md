@@ -6,4 +6,5 @@
 
 * Find if a japanese -> english offline translator exists (if possible under opensource and cross-platform), to reduce the dependency on Google Translator.
 
-* Add image preprocessing (to increase contrast, detect edges, etc) to improve Tesseract OCR?
+* Add image preprocessing (to increase contrast, detect edges, etc) to improve Tesseract OCR? Maybe also use Waifu2x to upscale kanjis?
+
