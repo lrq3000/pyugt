@@ -32,13 +32,13 @@ import sys
 import time
 # To display Tkinter windows in a thread (and be non-blocking so that shortcuts still work)
 import threading
-# To display screenshots and select a region
+# To display screenshots and select a region and preprocess the screenshot to enhance letters detection against translucent backgrounds
 if sys.version_info[0] == 2:  # the tkinter library changed it's name from Python 2 to 3.
     import Tkinter
     tkinter = Tkinter #I decided to use a library reference to avoid potential naming conflicts with people's programs.
 else:
     import tkinter
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageFilter, ImageMath
 # To show error message boxes
 from tkinter import messagebox
 # To show textboxes with scrollbars
@@ -308,11 +308,44 @@ def translateRegion(sct, config, configFile):
     # Convert to a PIL Image (else we can't show it on screen)
     img = Image.frombytes("RGB", sct_img.size, sct_img.bgra, "raw", "BGRX")
 
+    # Save screenshot if in debug mode
     if config['DEFAULT']['debug'] == 'True':
         # Get path to temporary image file (need to save to a file to pass onto Tesseract, there's no other way to directly pipe)
         imgtemppath = 'debugtranslate.png'
         # Save to the picture file
         mss.tools.to_png(sct_img.rgb, sct_img.size, output=imgtemppath)
+
+    # Preprocess screenshot to improve OCR accuracy (particularly over translucent backgrounds)
+    if config['DEFAULT']['preprocessing'] == 'True':
+        # Convert to greyscale and upscale image to artificially increase resolution
+        img = img.convert('L').resize((2 * _ for _ in img.size), resample=Image.LANCZOS)
+        if config['DEFAULT']['preprocessing_filters'] != 'None':
+            # Load up the list of filters to apply, from the config file
+            # The filters should be part of PILLOW.ImageFilter
+            imfilters = ast.literal_eval(config['DEFAULT']['preprocessing_filters'])
+            # Apply filters (remove translucent background, increase contrast of the letters, etc)
+            for imfilter in imfilters:
+                img = img.filter(getattr(ImageFilter, imfilter))
+        if config['DEFAULT']['preprocessing_binarize_threshold'] != 'None':
+            # Binarize
+            #fn = lambda x : 255 if x > thresh else 0  # real binarization
+            fn = lambda p : p > thresh and p + 100  # fake binarization, we simply add 100 to the pixels above the threshold, this helps keep some of the variation in the pixels intensities which can be helpful to recognize the letters, from: https://stackoverflow.com/questions/51688973/image-preprocessing-for-ocr-tessaract
+            thresh = int(config['DEFAULT']['preprocessing_binarize_threshold'])
+            try:
+                img = img.point(fn, mode='1')
+            except ValueError as exc:
+                # Exception when the screenshot is too small
+                pass
+        if config['DEFAULT']['preprocessing_invert'] == 'True':
+            # Invert image so that the text is black and background white, this works better with Tesseract according to doc: https://tesseract-ocr.github.io/tessdoc/ImproveQuality
+            img = ImageMath.eval('255 - (a)', a=img.convert('1')).convert('L')  # convert back to greyscale, else can't save a binary image and is buggy for PILLOW and maybe for Tesseract, so better be safe
+
+    # Save preprocessed screenshot if in debug mode
+    if config['DEFAULT']['debug'] == 'True':
+        # Get path to temporary image file (need to save to a file to pass onto Tesseract, there's no other way to directly pipe)
+        imgtemppath = 'debugtranslatepreproc.png'
+        # Save to the picture file
+        img.save(imgtemppath, 'PNG')
 
     # Tesseract OCR to extract text, directly from a PIL image object thanks to the pytesseract wrapper
     ocrtext = pytesseract.image_to_string(img, lang=langsource_ocr, nice=1)
