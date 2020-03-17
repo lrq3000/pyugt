@@ -367,8 +367,13 @@ def translateRegion(sct, config, configFile):
 
     # Translate using Google Translate through the googletrans (unofficial) wrapper module
     if config['DEFAULT']['ocr_only'] == 'True':
+        # Do not translate if ocr_only is enabled
         transtext = ''
     else:
+        # Send ocr text to Google Translate to get a translation
+        if config['DEFAULT']['remove_line_returns'] == 'True':
+            # If enabled, remove line returns automatically, so that we consider all sentences to be one (this can help the translator make more sense because it will have more context to work with).
+            ocrtext = ocrtext.replace("\n", "")
         transtext = gtranslate(ocrtext, langsource_trans, langtarget)
 
     if config['DEFAULT']['debug'] == 'True':
