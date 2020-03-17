@@ -85,7 +85,6 @@ class showPILandSelect(object):
         # Get screen size
         w, h = root.winfo_screenwidth(), root.winfo_screenheight()
         root.geometry("%dx%d+0+0" % (w, h))
-        root.focus_set()  # set window on foreground
         root.bind("<Escape>", lambda e: (e.widget.withdraw(), e.widget.quit()))
         canvas = tkinter.Canvas(root,width=w,height=h)
         canvas.pack()
@@ -117,6 +116,12 @@ class showPILandSelect(object):
         else:
             canvas.bind("<ButtonRelease-1>", self.on_button_release)
 
+        # set window on foreground, on top of others
+        root.focus_set()
+        root.lift()
+        root.attributes('-topmost', 'true')
+
+        # Launch the window
         root.mainloop()
 
     def on_button_press(self, event):
@@ -156,7 +161,7 @@ def showPIL(pilImage):
     w, h = root.winfo_screenwidth(), root.winfo_screenheight()
     root.overrideredirect(1)
     root.geometry("%dx%d+0+0" % (w, h))
-    root.focus_set()    
+    root.focus_set()
     root.bind("<Escape>", lambda e: (e.widget.withdraw(), e.widget.quit()))
     canvas = tkinter.Canvas(root,width=w,height=h)
     canvas.pack()
@@ -276,8 +281,10 @@ def translateRegion(sct, config, configFile):
             # Create a button to allow user to manually edit the OCR'ed text and manually force translation again
             self.buttontrans = tkinter.Button(root, text='Translate again', command=self.translate)
             self.buttontrans.grid(row=3)
-            # Set window on foreground
+            # Set window on foreground and stay on top of others
             root.focus_set()
+            root.lift()
+            root.attributes('-topmost', 'true')
             # Show window
             root.mainloop()
 
