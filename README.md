@@ -95,6 +95,16 @@ log_ocr = None
 log_translation = None
 # Only capture text by OCR without translating (set this value to True, else to also translate set to False). This is useful if you only want to use pyugt as a OCR tool, or don't want to send your OCR'ed text to Google.
 ocr_only = False
+# Remove line returns automatically, so that we consider all sentences to be one (this can help the translator make more sense because it will have more context to work with).
+remove_line_returns = True
+# Preprocess screenshots to improve OCR?
+preprocessing = True
+# Preprocessing filters to apply (set to None to disable, else input a list of strings with strings being methods of PILLOW.ImageFilter). Example: ['SMOOTH', 'SHARPEN', 'UnsharpMask']
+preprocessing_filters = ['SHARPEN']
+# Preprocessing binarization of image? Set to None to disable, else set a value between 0-255 (255 being white)
+preprocessing_binarize_threshold = 180
+# Preprocessing invert image (if text is white, it's better to invert to get black text, Tesseract OCR will be more accurate). Set to False to disable.
+preprocessing_invert = True
 # Show debug information
 debug = False
 ```
