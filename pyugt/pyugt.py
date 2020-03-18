@@ -39,10 +39,8 @@ if sys.version_info[0] == 2:  # the tkinter library changed it's name from Pytho
 else:
     import tkinter
 from PIL import Image, ImageTk, ImageFilter, ImageMath
-# To show error message boxes
-from tkinter import messagebox
-# To show textboxes with scrollbars
-import tkinter.scrolledtext
+# To show error message boxes and textboxes with scrollbars
+from tkinter import messagebox, scrolledtext
 
 ## Internal auxiliary scripts
 from _version import __version__
@@ -270,8 +268,8 @@ def translateRegion(sct, config, configFile):
             root.grid_rowconfigure(2, weight=1)
             root.resizable(True, True)
             # Create the textboxes (with scrollbars)
-            self.txtsrc = tkinter.scrolledtext.ScrolledText(root, undo=True)
-            self.txtout = tkinter.scrolledtext.ScrolledText(root, undo=True)
+            self.txtsrc = scrolledtext.ScrolledText(root, undo=True)
+            self.txtout = scrolledtext.ScrolledText(root, undo=True)
             # Place the textboxes vertically
             self.txtsrc.grid(row=0)
             self.txtout.grid(row=1)
@@ -471,7 +469,7 @@ def main():
     # It's also faster to initialize it only once, per https://python-mss.readthedocs.io/examples.html#benchmark
     sct = mss.mss()
     # Set global hotkeys, loading from config file
-    keyboard.add_hotkey(config['DEFAULT']['hotkey_set_region_capture'], selectRegion, args=(sct, config, configFile))
+    keyboard.add_hotkey(config['DEFAULT']['hotkey_set_region_capture'], selectRegion, args=(sct, config, configFile))  # Do NOT set suppress=True, else this may raise exceptions!
     print('Hit %s to set the region to capture.' % config['DEFAULT']['hotkey_set_region_capture'])
     keyboard.add_hotkey(config['DEFAULT']['hotkey_translate_region_capture'], translateRegion, args=(sct, config, configFile))
     print('Hit %s to translate the region (make sure to close the translation window before requesting another one).' % config['DEFAULT']['hotkey_translate_region_capture'])
