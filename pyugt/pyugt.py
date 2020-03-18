@@ -88,7 +88,7 @@ class showPILandSelect(threading.Thread):
         # Get screen size
         w, h = self.root.winfo_screenwidth(), self.root.winfo_screenheight()
         self.root.geometry("%dx%d+0+0" % (w, h))
-        self.root.bind("<Escape>", lambda e: (e.widget.withdraw(), e.widget.quit()))
+        self.root.bind("<Escape>", lambda e: (e.widget.withdraw()))
         if self.canvas is not None:
             # Clear and reuse canvas if previously created
             canvas = self.canvas
