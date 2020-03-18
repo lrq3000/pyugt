@@ -21,4 +21,6 @@ If when launching the executables you get the exception `ModuleNotFoundError: No
 
 pip install --upgrade 'setuptools<45.0.0'
 
+or add `--hidden-import="pkg_resources.py2_warn"` in the call to pyinstaller.
+
 See: https://github.com/pypa/setuptools/issues/1963
