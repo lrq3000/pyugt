@@ -83,12 +83,13 @@ class showPILandSelect(threading.Thread):
         self.root.mainloop()
 
     def display(self, pilImage, quitOnSelect=False):
-        # Reset region
-        self.rect = None
+        # Setup a variable that will be used as a lock to signal to parent thread that the user is not yet done with the region selection
+        self.selectionDone = False
         # Get screen size
         w, h = self.root.winfo_screenwidth(), self.root.winfo_screenheight()
+        # Set canvas to be fullscreen
         self.root.geometry("%dx%d+0+0" % (w, h))
-        self.root.bind("<Escape>", lambda e: (e.widget.withdraw()))
+        # Initialize/reset canvas
         if self.canvas is not None:
             # Clear and reuse canvas if previously created
             canvas = self.canvas
@@ -97,6 +98,7 @@ class showPILandSelect(threading.Thread):
             # Else create it
             canvas = tkinter.Canvas(self.root,width=w,height=h)
             self.canvas = canvas
+        # Prepare the canvas to load the screenshot image supplied as argument in pilImage
         canvas.pack()
         canvas.configure(background='black')
         imgWidth, imgHeight = pilImage.size
@@ -113,7 +115,8 @@ class showPILandSelect(threading.Thread):
         #    image = self.photoimage.paste(pilImage)
         imagesprite = canvas.create_image(w/2,h/2,image=image)
 
-        # Prepare the rectangle drawing
+        # Prepare the rectangle drawing to select a region
+        self.rect = None  # reset region
         self.start_x = None
         self.start_y = None
         self.x = self.y = 0
@@ -124,11 +127,10 @@ class showPILandSelect(threading.Thread):
         canvas.create_text(w/2,h/2,fill="red",font="Times 20 italic bold",
                         text="Please select the region to capture text to translate\n(use mouse left click).%s" % ("\nPress ESCAPE when done." if not quitOnSelect else ""))
 
-        # Quit directly after selecting?
-        if quitOnSelect:
-            canvas.bind("<ButtonRelease-1>", lambda e: (self.root.withdraw()))
-        else:
-            canvas.bind("<ButtonRelease-1>", self.on_button_release)
+        # What do we do after the user selected a region (ie, releasing the mouse button)?
+        canvas.bind("<ButtonRelease-1>", lambda event: self.on_button_release(event, quitOnSelect))
+        # Another way to finish is to press Escape (this is the only way if using the CTRL+SHIFT+F3 hotkey, because then we allow the user to redraw the region how many times they want until they get it right)
+        self.root.bind("<Escape>", self.signal_done)
 
         # Show this window
         self.root.deiconify()
@@ -155,8 +157,20 @@ class showPILandSelect(threading.Thread):
         # expand rectangle as you drag the mouse
         self.canvas.coords(self.rect, self.start_x, self.start_y, curX, curY)    
 
-    def on_button_release(self, event):
-        pass
+    def on_button_release(self, event, quitOnSelect=False):
+        # Quit directly after selecting?
+        if quitOnSelect:
+            self.signal_done(event)
+        else:
+            pass
+
+    def signal_done(self, event):
+        """Hides window and signal the user finished the selection of a region"""
+        # Hide the window
+        self.root.withdraw()
+        #event.widget.withdraw()
+        # Signal the region selection is done
+        self.selectionDone = True
 
     def get_rect_coords(self):
         """Returns the coordinates of the rectangle drawn by the user, by fitting a bounding box over it"""
@@ -212,7 +226,7 @@ def selectRegion(sct, RegionSelector, config, configFile, quitOnSelect=False):
     # Display screenshot and allow user to select a region
     RegionSelector.display(img, quitOnSelect=quitOnSelect)
     # Wait until the user selects a region (we launch the RegionSelector as a thread, so it's non-blocking + the thread is never stopped so we can reuse it and avoid memory leaks)
-    while RegionSelector.rect is None:
+    while RegionSelector.selectionDone is not True:  # we wait until the thread changes its lock-like variable to signal the user selected a region
         # TODO: maybe do this more elegantly with a threading.Lock?
         time.sleep(1)
     # Get the selected rectangle's coordinates
