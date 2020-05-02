@@ -121,7 +121,7 @@ On the other hand, there are several advantages to our approach:
 
 * we use Tesseract so that OCR is done locally (instead of via the Google Cloud Vision API) so we only send text which is a lot smaller footprint and thus less expensive (generally free), and a big advantage is that it's possible to freely resize the game window to a bigger size, with bigger characters improving the OCR recognition, and also no downscaling/quality reduction is necessary since there is no image transfer,
 
-* Regions can be selected, so that unnecessary screen objects that may confuse the OCR can be elimited with a carefully selected region,
+* Regions can be selected, so that unnecessary screen objects that may confuse the OCR can be elimited with a carefully selected region (update: [UGT now also implements this feature](https://github.com/SethRobinson/UGT/issues/6) :tada:),
 
 * We enforce the source and target languages, so that both the OCR and translator know what to expect, instead of trying to autodetect, which may fail particularly when there are names that may be written in another language or character form (eg, not in Kanji).
 
