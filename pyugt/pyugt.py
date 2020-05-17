@@ -42,9 +42,6 @@ from PIL import Image, ImageTk, ImageFilter, ImageMath
 # To show error message boxes and textboxes with scrollbars
 from tkinter import messagebox, scrolledtext
 
-## Internal auxiliary scripts
-from _version import __version__
-
 ## External modules
 # For global hotkeys (TODO: find another library to support MacOSX)
 import keyboard
@@ -57,6 +54,22 @@ import pytesseract
 # For translation - TODO: try to find a Japanese -> English offline translator, not good to be relying on an unofficial Google API, can change at any time
 from googletrans import Translator
 
+## Import version
+# Get version, better than importing the module because can fail if the requirements aren't met
+# See https://packaging.python.org/guides/single-sourcing-package-version/
+import codecs, re
+curpath = os.path.abspath(os.path.dirname(__file__))
+def read(*parts):
+    with codecs.open(os.path.join(*parts), 'r') as fp:
+        return fp.read()
+def find_version(*file_paths):
+    version_file = read(*file_paths)
+    version_match = re.search(r"^__version__\s*=\s*['\"]([^'\"]*)['\"]",
+                              version_file, re.M)
+    if version_match:
+        return version_match.group(1)
+    raise RuntimeError("Unable to find version string.")
+__version__ = find_version(curpath, "_version.py")
 
 ### Auxiliary functions
 
