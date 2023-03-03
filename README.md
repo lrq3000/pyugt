@@ -36,7 +36,7 @@ This software was inspired by the amazing work of Seth Robinson on [UGT (Univers
      
      `pip install --upgrade pyugt`
      
-     Or maybe what can be more easy if you want to edit the config file, is to download the archive from Github, unzip anywhere, cd in the folder and type:
+     Or for developers who want to run it locally, after downloading the archive from Github, unzip it anywhere, cd in the folder and type:
      
      `python setup.py develop`
      

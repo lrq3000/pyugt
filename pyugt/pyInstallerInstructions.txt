@@ -13,7 +13,7 @@ From this step on, you can reuse the same environment each time you want to rebu
 8. conda activate pyugtenv
 9. if there is any dist or build or __pycache folder, delete them
 10. pyinstaller -F -c --hidden-import="pkg_resources.py2_warn" --add-data="_version.py;pyugt" pyugt.py
-11. Copy config.ini and config_example.ini in the dist folder
+11. Copy config.ini and config_internal.ini in the dist folder
 12. Zip it and distribute
 
 To build a 32-bit binary, simply install Miniconda3 32-bit.
