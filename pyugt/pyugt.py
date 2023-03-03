@@ -289,6 +289,9 @@ class TranslationBox(threading.Thread):
             self.root.geometry(self.config_internal['INTERNAL']['translationbox_position'])
 
     def translate(self):
+        # Reload config file, so that user can change parameters on-the-fly
+        self.config = read_config(self.config.fullpath)
+        self.config_internal = read_config(self.config_internal.fullpath)
         # Update ocrtext with the textbox input
         self.ocrtext = self.txtsrc.get("1.0","end-1c")  # end-1c trick from https://stackoverflow.com/questions/14824163/how-to-get-the-input-from-the-tkinter-text-box-widget
         # Translate using Google Translate through the googletrans (unofficial) wrapper module
@@ -352,27 +355,33 @@ class TranslationBox(threading.Thread):
         self.root.lift()
         self.root.attributes('-topmost', 'true')
 
-@retry(wait=wait_exponential(multiplier=1, max=60) + wait_random(0, 2), stop=stop_after_delay(60))
+@retry(wait=wait_exponential(multiplier=1, max=5) + wait_random(0, 2), stop=stop_after_delay(10))
 def translate_online_free(ocrtext, langsource_trans, langtarget='en', translator='google'):
     """Translate using the translators module which queries web apps free interfaces, but can be denied access due to throttling, hence we retry"""
     return translators.translate_text(ocrtext, translator=translator, from_language=langsource_trans, to_language=langtarget)
 
 def translate_online_paid_deepl(ocrtext, langsource_trans, langtarget='EN-US', authkey=None):
     """Translate using DeepL API, not throttled but may require payments if too many requests. Currently best in class japaneses -> english translator."""
-    translator = deepl.Translator(auth_key)
+    translator = deepl.Translator(authkey)
     return translator.translate_text(ocrtext, source_lang=langsource_trans, target_lang=langtarget).text
 
 def translate_offline_argos(ocrtext, from_code, to_code='en'):
     """Offline translation using Argos Translate, based on OpenNMT"""
     # Download and install Argos Translate package if necessary, otherwise will automatically reuse the one already downloaded
     argostranslate.package.update_package_index()
-    available_packages = argostranslate.package.get_available_packages()
-    package_to_install = next(
-        filter(
-            lambda x: x.from_code == from_code and x.to_code == to_code, available_packages
+    try:
+        available_packages = argostranslate.package.get_available_packages()
+        package_to_install = next(
+            filter(
+                lambda x: x.from_code == from_code and x.to_code == to_code, available_packages
+            )
         )
-    )
-    argostranslate.package.install_from_path(package_to_install.download())
+        argostranslate.package.install_from_path(package_to_install.download())
+    except StopIteration as exc:
+        raise ValueError('ERROR: no matching language found for either the target language %s or source language %s, please check if they are valid for the selected translator!' % (to_code, from_code))
+    except Exception as exc:
+        traceback.print_exc()
+        pass
 
     # Translate
     return argostranslate.translate.translate(ocrtext, from_code, to_code)
@@ -399,6 +408,10 @@ def translate_any(config, ocrtext, langsource_trans, langtarget):
 
 def translateRegion(sct, TBox, config, config_internal):
     """Capture a screenshot of a previously defined region, detect with Tesseract OCR and translate via Google Translator"""
+    # Reload config file, so that user can change parameters on-the-fly
+    config = read_config(config.fullpath)
+    config_internal = read_config(config_internal.fullpath)
+    # Debug print
     if config['USER']['debug'] == 'True':
         print('translateRegion triggered')
     # First check a region was set, else raise an error
