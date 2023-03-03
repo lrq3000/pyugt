@@ -78,6 +78,7 @@ setup(name = "pyugt",
         'translators>=5.5.6',
         'deepl>=1.14.0',
         'argostranslate>=1.8.0',
+        'tenacity>=8.2.2',
     ],
 )
 
