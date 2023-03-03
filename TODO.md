@@ -1,30 +1,29 @@
 # TODO
 
 * Translation future proofing:
-    * replace googletrans module with https://github.com/UlionTse/translators for free translation (fix current issues)
-    * add DeepL with authentication, as a paid option but without throttling nor risk of not working in the future (and it's also the best currently available japanese->english translator) https://github.com/DeepLcom/deepl-python
-    * add argos-translate as an offline translator
-    * future: when it will be released in a stable branch, add argos-translate v2 support of M2M-100 model to translate more robustly across non-english languages, follow https://community.libretranslate.com/t/multilingual-translation-with-ctranslate2-and-pre-trained-fairseq-models/178/26 and https://github.com/argosopentech/argos-translate/tree/v2
+    * [] replace googletrans module with https://github.com/UlionTse/translators for free translation (fix current issues)
+    * [] add DeepL with authentication, as a paid option but without throttling nor risk of not working in the future (and it's also the best currently available japanese->english translator) https://github.com/DeepLcom/deepl-python
+    * [] add argos-translate as an offline translator
+        * [] implement preprocessing tricks as described [here](https://skeptric.com/python-offline-translation/) to improve accuracy and reduce hallucinations?
+        * [] Implement Marian Machine Translation (powering Microsoft Translator) as described [here](https://skeptric.com/python-offline-translation/)?
+    * [] future: when it will be released in a stable branch, add argos-translate v2 support of M2M-100 model to translate more robustly across non-english languages, follow https://community.libretranslate.com/t/multilingual-translation-with-ctranslate2-and-pre-trained-fairseq-models/178/26 and https://github.com/argosopentech/argos-translate/tree/v2
 
-* Add support for https://github.com/Artikash/Textractor (text hook extraction) instead of OCR. [Cannot work for emulated games](https://github.com/Artikash/Textractor/issues/418), but it will work for a lot of modern visual novel games.
+* [] Add support for https://github.com/Artikash/Textractor (text hook extraction) instead of OCR. [Cannot work for emulated games](https://github.com/Artikash/Textractor/issues/418), but it will work for a lot of modern visual novel games.
 
-* Explore tesseract osd extraction to see if it's possible to retain the position (and hence potentially overlaying the translated text over a screenshot of the game).
-  
-  Checkout https://tesseract-ocr.github.io/tessdoc/ImproveQuality sparse text with OSD mode may work better
+* [] Explore tesseract osd extraction to see if it's possible to retain the position (and hence potentially overlaying the translated text over a screenshot of the game).
+    * [] Checkout https://tesseract-ocr.github.io/tessdoc/ImproveQuality sparse text with OSD mode may work better
 
-* Find if a japanese -> english offline translator exists (if possible under opensource and cross-platform), to reduce the dependency on Google Translator.
+* [] Add image preprocessing (to increase contrast, detect edges, etc) to improve Tesseract OCR? Maybe also use Waifu2x to upscale kanjis?
+    * [] BEST: take inspiration from Visual Novel OCR and provide a GUI to tweak HSV and binarization parameters, it will be a lot easier to tweak image manipulation visually for the lambda user than programmatically: https://visual-novel-ocr.sourceforge.io/#h.fikow7ge3ky
+    * [] TODO: try https://github.com/wwtg99/image_filter
+    * [] TODO: try (but will slow down a lot): https://gist.github.com/Tydus/987239fea966438d8a873fbb083240d6#file-waifu2x-py
 
-* Add image preprocessing (to increase contrast, detect edges, etc) to improve Tesseract OCR? Maybe also use Waifu2x to upscale kanjis?
-    * BEST: take inspiration from Visual Novel OCR and provide a GUI to tweak HSV and binarization parameters, it will be a lot easier to tweak image manipulation visually for the lambda user than programmatically: https://visual-novel-ocr.sourceforge.io/#h.fikow7ge3ky
-    * TODO: try https://github.com/wwtg99/image_filter
-    * TODO: try (but will slow down a lot): https://gist.github.com/Tydus/987239fea966438d8a873fbb083240d6#file-waifu2x-py
+* [] Use Travis-CI and AppVeyor to automatically build binaries across platforms?
 
-* Use Travis-CI and AppVeyor to automatically build binaries across platforms?
-
-* New shortcut to translate active window, using https://github.com/asweigart/pygetwindow on Windows (would be nice to find for Linux and MacOSX - there is a PR for MacOSX)
+* [] New shortcut to translate active window, using https://github.com/asweigart/pygetwindow on Windows (would be nice to find for Linux and MacOSX - there is a PR for MacOSX)
     See also:
     https://stackoverflow.com/questions/10266281/obtain-active-window-using-python
     https://stackoverflow.com/questions/12775136/get-window-position-and-size-in-python-with-xlib
     https://github.com/Pithikos/winlaunch
 
-* BUG: when CTRL+F3 is used first (reuse previous region) as the first shortcut, and then CTRL+F2 is used, the program may fail because Tkinter root is first created in the thread, instead of the main app! We should initiate Tkinter root in main app first before anything!
+* [] BUG: when CTRL+F3 is used first (reuse previous region) as the first shortcut, and then CTRL+F2 is used, the program may fail because Tkinter root is first created in the thread, instead of the main app! We should initiate Tkinter root in main app first before anything!
