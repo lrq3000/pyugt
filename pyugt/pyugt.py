@@ -225,20 +225,20 @@ def showPIL(pilImage):
     imagesprite = canvas.create_image(w/2,h/2,image=image)
     root.mainloop()
 
-def selectRegion(sct, RegionSelector, config, configFile, quitOnSelect=False):
+def selectRegion(sct, RegionSelector, config, config_internal, quitOnSelect=False):
     """Region-based selection: take a whole desktop screenshot and allow the user to select the region from where to take further screenshots (easier than manipulating the OS window manager to draw rectangles on the REAL screen).
     The result is saved in the config file directly."""
 
-    if config['DEFAULT']['debug'] == 'True':
+    if config['USER']['debug'] == 'True':
         print('selectRegion triggered')
 
     # Grab whole desktop screenshot
     # Grab screenshot
-    sct_img = sct.grab(sct.monitors[int(config['DEFAULT']['monitor'])])
+    sct_img = sct.grab(sct.monitors[int(config['USER']['monitor'])])
     # Convert to a PIL Image (else we can't show it on screen)
     img = Image.frombytes("RGB", sct_img.size, sct_img.bgra, "raw", "BGRX")
 
-    if config['DEFAULT']['debug'] == 'True':
+    if config['USER']['debug'] == 'True':
         # Get path to temporary image file (need to save to a file to pass onto Tesseract, there's no other way to directly pipe)
         imgtemppath = 'debugselect.png'
         # Save to the picture file
@@ -256,17 +256,17 @@ def selectRegion(sct, RegionSelector, config, configFile, quitOnSelect=False):
     #appregionselect.destroy()
     # Save in config
     if rectcoords is not None:
-        if not 'INTERNAL' in config:
-            config['INTERNAL'] = {}
-        config['INTERNAL']['region'] = repr(rectcoords)  # convert to a string to be parseable by configParser
-        with open(configFile, 'w') as cfg:
-            config.write(cfg)
+        if not 'INTERNAL' in config_internal:
+            config_internal['INTERNAL'] = {}
+        config_internal['INTERNAL']['region'] = repr(rectcoords)  # convert to a string to be parseable by configParser
+        with open(config_internal.fullpath, 'w') as cfg:
+            config_internal.write(cfg)
 
 class TranslationBox(threading.Thread):
-    def __init__(self, config, configFile):
+    def __init__(self, config, config_internal):
         threading.Thread.__init__(self)
         self.config = config
-        self.configFile = configFile
+        self.config_internal = config_internal
         self.setDaemon(True)  # always close thread along with parent process
         self.start()
     
@@ -277,22 +277,22 @@ class TranslationBox(threading.Thread):
     def save_geometry(self, event):
         """Save size and position of window when moved around to reopen later at the same position"""
         # Inspired by https://stackoverflow.com/a/43160322/1121352
-        if not 'INTERNAL' in self.config:
-            self.config['INTERNAL'] = {}
-        self.config['INTERNAL']['translationbox_position'] = self.root.geometry()
-        with open(self.configFile, 'w') as cfg:
-            self.config.write(cfg)
+        if not 'INTERNAL' in self.config_internal:
+            self.config_internal['INTERNAL'] = {}
+        self.config_internal['INTERNAL']['translationbox_position'] = self.root.geometry()
+        with open(self.config_internal.fullpath, 'w') as cfg:
+            self.config_internal.write(cfg)
 
     def load_geometry(self):
         """Load size and position of window from config file"""
-        if 'INTERNAL' in self.config and 'translationbox_position' in self.config['INTERNAL']:
-            self.root.geometry(self.config['INTERNAL']['translationbox_position'])
+        if 'INTERNAL' in self.config_internal and 'translationbox_position' in self.config_internal['INTERNAL']:
+            self.root.geometry(self.config_internal['INTERNAL']['translationbox_position'])
 
     def translate(self):
         # Update ocrtext with the textbox input
         self.ocrtext = self.txtsrc.get("1.0","end-1c")  # end-1c trick from https://stackoverflow.com/questions/14824163/how-to-get-the-input-from-the-tkinter-text-box-widget
         # Translate using Google Translate through the googletrans (unofficial) wrapper module
-        self.transtext = translate_any(self.config, self.ocrtext, self.config['DEFAULT']['lang_source_trans'], self.config['DEFAULT']['lang_target'])
+        self.transtext = translate_any(self.config, self.ocrtext, self.config['USER']['lang_source_trans'], self.config['USER']['lang_target'])
         # Clear up the translation textbox
         self.txtout.delete("1.0", tkinter.END)
         # Rewrite the translation textbox content with the new translation
@@ -382,11 +382,11 @@ def translate_any(config, ocrtext, langsource_trans, langtarget):
     # Send ocr text to the machine translator, but first select which translator we want
     transtext = ''
     try:
-        if config['DEFAULT']['translator_lib'] == 'online_free':
-            transtext = translate_online_free(ocrtext, langsource_trans, langtarget, translator=config['DEFAULT']['translator_lib_online_free_service'])
-        elif config['DEFAULT']['translator_lib'] == 'deepl':
-            transtext = translate_online_paid_deepl(ocrtext, langsource_trans, langtarget, authkey=config['DEFAULT']['translator_lib_deepl_authkey'])
-        elif config['DEFAULT']['translator_lib'] == 'offline_argos':
+        if config['USER']['translator_lib'] == 'online_free':
+            transtext = translate_online_free(ocrtext, langsource_trans, langtarget, translator=config['USER']['translator_lib_online_free_service'])
+        elif config['USER']['translator_lib'] == 'deepl':
+            transtext = translate_online_paid_deepl(ocrtext, langsource_trans, langtarget, authkey=config['USER']['translator_lib_deepl_authkey'])
+        elif config['USER']['translator_lib'] == 'offline_argos':
             transtext = translate_offline_argos(ocrtext, langsource_trans, langtarget)
         else:
             raise ValueError('Specified translator_lib in config.ini does not exist! Please specify one of the following: online_free, deepl or offline_argos.')
@@ -397,60 +397,60 @@ def translate_any(config, ocrtext, langsource_trans, langtarget):
         transtext = 'ERROR'
     return transtext
 
-def translateRegion(sct, TBox, config, configFile):
+def translateRegion(sct, TBox, config, config_internal):
     """Capture a screenshot of a previously defined region, detect with Tesseract OCR and translate via Google Translator"""
-    if config['DEFAULT']['debug'] == 'True':
+    if config['USER']['debug'] == 'True':
         print('translateRegion triggered')
     # First check a region was set, else raise an error
-    if 'INTERNAL' not in config or 'region' not in config['INTERNAL'] or ast.literal_eval(config['INTERNAL']['region']) is None:
-        show_errorbox("Error: please first select a region to capture from (use hotkey %s)" % config['DEFAULT']['hotkey_set_region_capture'])
+    if 'INTERNAL' not in config_internal or 'region' not in config_internal['INTERNAL'] or ast.literal_eval(config_internal['INTERNAL']['region']) is None:
+        show_errorbox("Error: please first select a region to capture from (use hotkey %s)" % config['USER']['hotkey_set_region_capture'])
         return
     # Load config file into memory variables
-    langsource_ocr = config['DEFAULT']['lang_source_ocr']
-    langsource_trans = config['DEFAULT']['lang_source_trans']
-    langtarget = config['DEFAULT']['lang_target']
+    langsource_ocr = config['USER']['lang_source_ocr']
+    langsource_trans = config['USER']['lang_source_trans']
+    langtarget = config['USER']['lang_target']
     # Grab whole desktop screenshot
     # Grab screenshot
-    x0,y0,x1,y1 = ast.literal_eval(config['INTERNAL']['region'])
+    x0,y0,x1,y1 = ast.literal_eval(config_internal['INTERNAL']['region'])
     screenregion = {'top': y0, 'left': x0, 'width': x1-x0, 'height': y1-y0}
     sct_img = sct.grab(screenregion)
     # Convert to a PIL Image (else we can't show it on screen)
     img = Image.frombytes("RGB", sct_img.size, sct_img.bgra, "raw", "BGRX")
 
     # Save screenshot if in debug mode
-    if config['DEFAULT']['debug'] == 'True':
+    if config['USER']['debug'] == 'True':
         # Get path to temporary image file (need to save to a file to pass onto Tesseract, there's no other way to directly pipe)
         imgtemppath = 'debugtranslate.png'
         # Save to the picture file
         mss.tools.to_png(sct_img.rgb, sct_img.size, output=imgtemppath)
 
     # Preprocess screenshot to improve OCR accuracy (particularly over translucent backgrounds)
-    if config['DEFAULT']['preprocessing'] == 'True':
+    if config['USER']['preprocessing'] == 'True':
         # Convert to greyscale and upscale image to artificially increase resolution
         img = img.convert('L').resize((2 * _ for _ in img.size), resample=Image.LANCZOS)
-        if config['DEFAULT']['preprocessing_filters'] != 'None':
+        if config['USER']['preprocessing_filters'] != 'None':
             # Load up the list of filters to apply, from the config file
             # The filters should be part of PILLOW.ImageFilter
-            imfilters = ast.literal_eval(config['DEFAULT']['preprocessing_filters'])
+            imfilters = ast.literal_eval(config['USER']['preprocessing_filters'])
             # Apply filters (remove translucent background, increase contrast of the letters, etc)
             for imfilter in imfilters:
                 img = img.filter(getattr(ImageFilter, imfilter))
-        if config['DEFAULT']['preprocessing_binarize_threshold'] != 'None':
+        if config['USER']['preprocessing_binarize_threshold'] != 'None':
             # Binarize
             #fn = lambda x : 255 if x > thresh else 0  # real binarization
             fn = lambda p : p > thresh and p + 100  # fake binarization, we simply add 100 to the pixels above the threshold, this helps keep some of the variation in the pixels intensities which can be helpful to recognize the letters, from: https://stackoverflow.com/questions/51688973/image-preprocessing-for-ocr-tessaract
-            thresh = int(config['DEFAULT']['preprocessing_binarize_threshold'])
+            thresh = int(config['USER']['preprocessing_binarize_threshold'])
             try:
                 img = img.point(fn, mode='1')
             except ValueError as exc:
                 # Exception when the screenshot is too small
                 pass
-        if config['DEFAULT']['preprocessing_invert'] == 'True':
+        if config['USER']['preprocessing_invert'] == 'True':
             # Invert image so that the text is black and background white, this works better with Tesseract according to doc: https://tesseract-ocr.github.io/tessdoc/ImproveQuality
             img = ImageMath.eval('255 - (a)', a=img.convert('1')).convert('L')  # convert back to greyscale, else can't save a binary image and is buggy for PILLOW and maybe for Tesseract, so better be safe
 
     # Save preprocessed screenshot if in debug mode
-    if config['DEFAULT']['debug'] == 'True':
+    if config['USER']['debug'] == 'True':
         # Get path to temporary image file (need to save to a file to pass onto Tesseract, there's no other way to directly pipe)
         imgtemppath = 'debugtranslatepreproc.png'
         # Save to the picture file
@@ -462,45 +462,45 @@ def translateRegion(sct, TBox, config, configFile):
     if not ocrtext.strip():
         show_errorbox('No text found by OCR! Make sure your capture region is properly set!')
         return
-    if config['DEFAULT']['debug'] == 'True':
+    if config['USER']['debug'] == 'True':
         print('OCR\'ed text:')
         print(ocrtext)
     #os.system('tesseract -l {imgpath} {srclang} {outputtxt}'.format(imgpath=os.path.abspath(imgtemppath), srclang=langsource, outputtxt='test'))  # alternative way to generate the OCR, by commandline call directly
 
     # Translate using a machine translator
-    if config['DEFAULT']['ocr_only'] == 'True':
+    if config['USER']['ocr_only'] == 'True':
         # Do not translate if ocr_only is enabled
         transtext = ''
     else:
-        if config['DEFAULT']['remove_line_returns'] == 'True':
+        if config['USER']['remove_line_returns'] == 'True':
             # If enabled, remove line returns automatically, so that we consider all sentences to be one (this can help the translator make more sense because it will have more context to work with).
             ocrtext = ocrtext.replace("\n", "")
         # Send ocr text to the machine translator
         transtext = translate_any(config, ocrtext, langsource_trans, langtarget)
 
-    if config['DEFAULT']['debug'] == 'True':
+    if config['USER']['debug'] == 'True':
         print('Translated text:')
         print(transtext)
 
     # Save OCR'ed text and translation in logs if specified. The same datetime will be written for both, so that they can be matched externally.
     curdatetime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    if config['DEFAULT']['log_ocr'] != 'None':
-        with codecs.open(config['DEFAULT']['log_ocr'], 'a', 'utf-8-sig') as f:
+    if config['USER']['log_ocr'] != 'None':
+        with codecs.open(config['USER']['log_ocr'], 'a', 'utf-8-sig') as f:
             f.write("-> OCR at %s:\n" % curdatetime)
             f.write(ocrtext)
             f.write("\n---------------------\n")
-    if config['DEFAULT']['log_translation'] != 'None':
-        with codecs.open(config['DEFAULT']['log_translation'], 'a', 'utf-8-sig') as f:
+    if config['USER']['log_translation'] != 'None':
+        with codecs.open(config['USER']['log_translation'], 'a', 'utf-8-sig') as f:
             f.write("-> Translation at %s:\n" % curdatetime)
             f.write(transtext)
             f.write("\n---------------------\n")
 
     TBox.update_text(ocrtext, transtext)
 
-def selectAndTranslateRegion(sct, RegionSelector, TBox, config, configFile):
+def selectAndTranslateRegion(sct, RegionSelector, TBox, config, config_internal):
     """Wrapper to select a region and translate it directly after, this streamlines the process"""
-    selectRegion(sct, RegionSelector, config, configFile, quitOnSelect=True)
-    translateRegion(sct, TBox, config, configFile)
+    selectRegion(sct, RegionSelector, config, config_internal, quitOnSelect=True)
+    translateRegion(sct, TBox, config, config_internal)
 
 def show_errorbox(msg):
     """Show an error box"""
@@ -516,18 +516,8 @@ def show_errorbox_exception(msg):
     show_errorbox(msg)
     raise Exception(msg)
 
-
-### Main program
-def main():
-    # Commandline arguments
-    parser = optparse.OptionParser()
-    parser.add_option("-c", "--config", dest="config", default=None,
-                        help="Path to the config file (default: config.ini)", metavar="FILE")
-    (options, args) = parser.parse_args()
-    configFileArg = options.config
-
-    # Print description message on startup
-    print('pyugt - Python Universal Game Translator v%s - started' % __version__)
+def read_config(configFileArg=None, default_path='config.ini'):
+    """Read a config file, or create it, either in the default path or in the provided path"""
     # Path to current script (to find the config file)
     curpath = os.path.dirname(os.path.abspath(__file__))
     # Load config file
@@ -537,15 +527,39 @@ def main():
         configFile = os.path.abspath(configFileArg)
     else:
         # Default path
-        configFile = os.path.join(curpath, 'config.ini')
+        configFile = os.path.join(curpath, default_path)
     # Check the path exists
     if not os.path.exists(configFile):
         show_errorbox_exception('Specified configuration file (%s) does not exist!' % configFile)
     # Load up the config file in memory
     config.read(configFile)
+    # Add an attribute to the config object to store the fullpath, so that we can overwrite the config file later
+    config.fullpath = configFile
+    # Return the fully loaded config file
+    return config
+
+### Main program
+def main():
+    # Commandline arguments
+    parser = optparse.OptionParser()
+    parser.add_option("-c", "--config", dest="config", default=None,
+                        help="Path to the config file with user specified parameters, will be read-only, not modified by the program, and can be modified on-the-fly by user (default: config.ini)", metavar="FILE")
+    parser.add_option("-ci", "--config_internal", dest="config_internal", default=None,
+                        help="Path to the internal config file, where temporary data will be written such as selected window coordinates (default: config_internal.ini)", metavar="FILE")
+    # Fetch commandline args
+    (options, args) = parser.parse_args()
+    configFileArg = options.config
+    configFileIntArg = options.config_internal
+
+    # Print description message on startup
+    print('pyugt - Python Universal Game Translator v%s - started' % __version__)
+
+    # Load up the config file in memory
+    config = read_config(configFileArg, default_path='config.ini')
+    config_internal = read_config(configFileIntArg, default_path='config_internal.ini')
 
     # Load config file into memory variables
-    PATH_tesseract_bin = config['DEFAULT']['PATH_tesseract_bin']
+    PATH_tesseract_bin = config['USER']['PATH_tesseract_bin']
     if not os.path.exists(PATH_tesseract_bin):
         show_errorbox_exception("Can't find Tesseract v5 binaries, please update the config.ini file to point to the binaries! If it's not installed, on Windows installers are provided by UB Mannheim's at: https://github.com/UB-Mannheim/tesseract/wiki")
     # Add Tesseract binary to the path (so that the user does not need to do it in their OS)
@@ -561,15 +575,15 @@ def main():
 
     # Initialize GUI windows
     RegionSelector = showPILandSelect()
-    TBox = TranslationBox(config, configFile)
+    TBox = TranslationBox(config, config_internal)
 
     # Set global hotkeys, loading from config file
-    keyboard.add_hotkey(config['DEFAULT']['hotkey_set_region_capture'], selectRegion, args=(sct, RegionSelector, config, configFile))  # Do NOT set suppress=True, else this may raise exceptions!
-    print('Hit %s to set the region to capture.' % config['DEFAULT']['hotkey_set_region_capture'])
-    keyboard.add_hotkey(config['DEFAULT']['hotkey_translate_region_capture'], translateRegion, args=(sct, TBox, config, configFile))
-    print('Hit %s to translate the region (make sure to close the translation window before requesting another one).' % config['DEFAULT']['hotkey_translate_region_capture'])
-    keyboard.add_hotkey(config['DEFAULT']['hotkey_set_and_translate_region_capture'], selectAndTranslateRegion, args=(sct, RegionSelector, TBox, config, configFile))
-    print('Hit %s to set AND translate a region.' % config['DEFAULT']['hotkey_set_and_translate_region_capture'])
+    keyboard.add_hotkey(config['USER']['hotkey_set_region_capture'], selectRegion, args=(sct, RegionSelector, config, config_internal))  # Do NOT set suppress=True, else this may raise exceptions!
+    print('Hit %s to set the region to capture.' % config['USER']['hotkey_set_region_capture'])
+    keyboard.add_hotkey(config['USER']['hotkey_translate_region_capture'], translateRegion, args=(sct, TBox, config, config_internal))
+    print('Hit %s to translate the region (make sure to close the translation window before requesting another one).' % config['USER']['hotkey_translate_region_capture'])
+    keyboard.add_hotkey(config['USER']['hotkey_set_and_translate_region_capture'], selectAndTranslateRegion, args=(sct, RegionSelector, TBox, config, config_internal))
+    print('Hit %s to set AND translate a region.' % config['USER']['hotkey_set_and_translate_region_capture'])
 
     # Main waiting loop (we wait for hotkeys to be pressed)
     print('Press CTRL+C or close this window to quit.')
