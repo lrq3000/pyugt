@@ -517,7 +517,7 @@ def show_errorbox_exception(msg):
     raise Exception(msg)
 
 def read_config(configFileArg=None, default_path='config.ini'):
-    """Read a config file, or create it, either in the default path or in the provided path"""
+    """Read a config file, either in the default path or in the provided path"""
     # Path to current script (to find the config file)
     curpath = os.path.dirname(os.path.abspath(__file__))
     # Load config file
@@ -544,7 +544,7 @@ def main():
     parser = optparse.OptionParser()
     parser.add_option("-c", "--config", dest="config", default=None,
                         help="Path to the config file with user specified parameters, will be read-only, not modified by the program, and can be modified on-the-fly by user (default: config.ini)", metavar="FILE")
-    parser.add_option("-ci", "--config_internal", dest="config_internal", default=None,
+    parser.add_option("--config_internal", dest="config_internal", default=None,
                         help="Path to the internal config file, where temporary data will be written such as selected window coordinates (default: config_internal.ini)", metavar="FILE")
     # Fetch commandline args
     (options, args) = parser.parse_args()
