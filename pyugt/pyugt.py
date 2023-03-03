@@ -464,12 +464,12 @@ def translateRegion(sct, TBox, config, config_internal):
 
     # Save preprocessed screenshot if in debug mode
     if config['USER']['debug'] == 'True':
-        # Get path to temporary image file (need to save to a file to pass onto Tesseract, there's no other way to directly pipe)
+        # Get path to temporary image file
         imgtemppath = 'debugtranslatepreproc.png'
         # Save to the picture file
         img.save(imgtemppath, 'PNG')
 
-    # Tesseract OCR to extract text, directly from a PIL image object thanks to the pytesseract wrapper
+    # Tesseract OCR to extract text, directly from a PIL image object thanks to the pytesseract wrapper. Otherwise, we would need to save to a temporary file to pass onto Tesseract, as there's no other way to directly pipe without pytesseract
     ocrtext = pytesseract.image_to_string(img, lang=langsource_ocr, nice=1)
     # TODO: use image_to_boxes or image_to_osd or image_to_data to get position of strings and place them back in place on a screenshot, similarly to what Universal Game Translator does
     if not ocrtext.strip():
