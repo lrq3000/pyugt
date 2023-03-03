@@ -75,7 +75,9 @@ setup(name = "pyugt",
         'keyboard>=0.13.4',
         'mss>=5.0.0',
         'pytesseract>=0.3.3',
-        'googletrans>=2.4.0',
+        'translators>=5.5.6',
+        'deepl>=1.14.0',
+        'argostranslate>=1.8.0',
     ],
 )
 

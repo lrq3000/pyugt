@@ -4,13 +4,15 @@
 [![PyPI-Versions](https://img.shields.io/pypi/pyversions/pyugt.svg?logo=python&logoColor=white)](https://pypi.org/project/pyugt)
 [![PyPI-Downloads](https://img.shields.io/pypi/dm/pyugt.svg?logo=python&logoColor=white)](https://pypi.org/project/pyugt)
 
-pyugt is a universal game translator coded in Python: it takes screenshots from a region you select on your screen, uses OCR (via Tesseract v5) to extract the characters, then feeds them to a machine translator (Google Translate) to then show you a translated text.
+pyugt is a universal game translator coded in Python: it takes screenshots from a region you select on your screen, uses OCR (via Tesseract v5) to extract the characters, then feeds them to a machine translator (multiple backends are included) to then show you a translated text.
 
 Since it works directly on images, there is no need to hack the game or anything to access the text. It is also cross-platform (support for Windows and Linux and experimentally on MacOSX).
 
 Here is a demo:
 
 ![demo](https://github.com/lrq3000/pyugt/raw/master/doc/demo.gif)
+
+Several machine translation backends are available: from free online APIs such as Google Translate, to DeepL with a free or paid subscription, and also an offline translator that runs directly on your computer without needing internet access thanks to Argos Translate and OpenNMT.
 
 Of course, since the translation is done by a machine, don't expect a very nice translation, but for games where no translation is available, it can be sufficient to understand the gist and be able to play.
 
@@ -38,7 +40,7 @@ This software was inspired by the amazing work of Seth Robinson on [UGT (Univers
      
      `python setup.py develop`
      
-     Note the software was tested on Windows 10 x64 with Python 3.7 (Anaconda). It should also work on other Python versions and on Linux but this was not tested (please let me know if you try on Linux!).
+     Note the software was tested on Windows 10 x64 with Python 3.10 (Anaconda). It should also work on other Python versions and on Linux but this was not tested (please let me know if you try on Linux!).
 
 ## How to use
 
@@ -81,6 +83,12 @@ lang_source_ocr = jpn
 lang_source_trans = ja
 # Target language to translate to. Must be a Google Translate language code (NOT a Tesseract code!).
 lang_target = en
+# Machine translator library to use. Can be online_free to use free online APIs but which can be throttled (eg, Google Translate, DeepL free, Baidu, etc) ; deepl to use DeepL API with your own authkey (not throttled but limited number of translations in free plan, then need to pay for more, but it's best in class japanese->english machine translator) ; offline_argos for offline translation using Argos based on OpenNMT, which produces less accurate translations but is free, unlimited and does not require an internet connection.
+translator_lib = online_free
+# If online_free is the selected translator_lib, we can specify here the translator service to use. For a list of available services, see: https://github.com/UlionTse/translators#more-about-translators
+translator_lib_online_free_service = google
+# If translator_lib is set to deepl, the API authorization key must be set here
+translator_lib_deepl_authkey = f8a291-...
 # Hotkey to set the region on screen to capture future screenshots from. The region does not need to be precise, but must contain the region where text is likely to be found.
 hotkey_set_region_capture = ctrl+shift+F3
 # Hotkey to translate from the selected region
@@ -132,6 +140,10 @@ On the other hand, there are several advantages to our approach:
 * [Capture2Text](http://capture2text.sourceforge.net/) (Windows, opensource) - OCR on-screen text, but no translation.
 
 * [OwlOCR](https://frankbyte.com/owlocr/) (MacOSX, freeware) - Similar to Capture2Text, OCR on-screen text, no translation.
+
+* [Sugoi Japanese Translator](https://github.com/leminhyen2/Sugoi-Japanese-Translator) combined with (Visual Novel OCR)[https://visual-novel-ocr.sourceforge.io/] by the same author: provides similar features to pyUGT but is closed-source, so that it cannot be improved upon. Also, it is unclear which OCR backend is used.
+
+* [Translator++](https://dreamsavior.net/download/), a free but closed source app to translate non emulated games with access to the text, can leverage automatic machine translation.
 
 ## License
 

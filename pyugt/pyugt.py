@@ -32,6 +32,8 @@ import sys
 import time
 # To display Tkinter windows in a thread (and be non-blocking so that shortcuts still work)
 import threading
+# To gracefully print stack trace in console in case of an exception
+import traceback
 # To display screenshots and select a region and preprocess the screenshot to enhance letters detection against translucent backgrounds
 if sys.version_info[0] == 2:  # the tkinter library changed it's name from Python 2 to 3.
     import Tkinter
@@ -50,9 +52,15 @@ import mss
 # For Optical Character Recognition
 import pytesseract
 
-## External modules - importing subpackage
-# For translation - TODO: try to find a Japanese -> English offline translator, not good to be relying on an unofficial Google API, can change at any time
-from googletrans import Translator
+## External modules - translators
+# For free online translation (may be throttled)
+import translators
+from tenacity import retry, wait_random, wait_exponential, stop_after_delay  # to retry when throttled
+# Paid online translations via DeepL (there is a free tier)
+import deepl
+# Local offline free unthrottled translator via Argos Translate using OpenNMT
+import argostranslate.package
+import argostranslate.translate
 
 ## Import version
 # Get version, better than importing the module because can fail if the requirements aren't met
@@ -284,7 +292,7 @@ class TranslationBox(threading.Thread):
         # Update ocrtext with the textbox input
         self.ocrtext = self.txtsrc.get("1.0","end-1c")  # end-1c trick from https://stackoverflow.com/questions/14824163/how-to-get-the-input-from-the-tkinter-text-box-widget
         # Translate using Google Translate through the googletrans (unofficial) wrapper module
-        self.transtext = gtranslate(self.ocrtext, self.config['DEFAULT']['lang_source_trans'], self.config['DEFAULT']['lang_target'])
+        self.transtext = translate_any(self.config, self.ocrtext, self.config['DEFAULT']['lang_source_trans'], self.config['DEFAULT']['lang_target'])
         # Clear up the translation textbox
         self.txtout.delete("1.0", tkinter.END)
         # Rewrite the translation textbox content with the new translation
@@ -344,11 +352,49 @@ class TranslationBox(threading.Thread):
         self.root.lift()
         self.root.attributes('-topmost', 'true')
 
-def gtranslate(ocrtext, langsource_trans, langtarget):
-    """Translate using Google Translate through the googletrans (unofficial) wrapper module"""
-    translator = Translator()
-    transobj = translator.translate(ocrtext, src=langsource_trans, dest=langtarget)
-    transtext = transobj.text
+@retry(wait=wait_exponential(multiplier=1, max=60) + wait_random(0, 2), stop=stop_after_delay(60))
+def translate_online_free(ocrtext, langsource_trans, langtarget='en', translator='google'):
+    """Translate using the translators module which queries web apps free interfaces, but can be denied access due to throttling, hence we retry"""
+    return translators.translate_text(ocrtext, translator=translator, from_language=langsource_trans, to_language=langtarget)
+
+def translate_online_paid_deepl(ocrtext, langsource_trans, langtarget='EN-US', authkey=None):
+    """Translate using DeepL API, not throttled but may require payments if too many requests. Currently best in class japaneses -> english translator."""
+    translator = deepl.Translator(auth_key)
+    return translator.translate_text(ocrtext, source_lang=langsource_trans, target_lang=langtarget).text
+
+def translate_offline_argos(ocrtext, from_code, to_code='en'):
+    """Offline translation using Argos Translate, based on OpenNMT"""
+    # Download and install Argos Translate package if necessary, otherwise will automatically reuse the one already downloaded
+    argostranslate.package.update_package_index()
+    available_packages = argostranslate.package.get_available_packages()
+    package_to_install = next(
+        filter(
+            lambda x: x.from_code == from_code and x.to_code == to_code, available_packages
+        )
+    )
+    argostranslate.package.install_from_path(package_to_install.download())
+
+    # Translate
+    return argostranslate.translate.translate(ocrtext, from_code, to_code)
+
+def translate_any(config, ocrtext, langsource_trans, langtarget):
+    """Helper function to select a translator according to config file and return a translation, and manage exceptions gracefully"""
+    # Send ocr text to the machine translator, but first select which translator we want
+    transtext = ''
+    try:
+        if config['DEFAULT']['translator_lib'] == 'online_free':
+            transtext = translate_online_free(ocrtext, langsource_trans, langtarget, translator=config['DEFAULT']['translator_lib_online_free_service'])
+        elif config['DEFAULT']['translator_lib'] == 'deepl':
+            transtext = translate_online_paid_deepl(ocrtext, langsource_trans, langtarget, authkey=config['DEFAULT']['translator_lib_deepl_authkey'])
+        elif config['DEFAULT']['translator_lib'] == 'offline_argos':
+            transtext = translate_offline_argos(ocrtext, langsource_trans, langtarget)
+        else:
+            raise ValueError('Specified translator_lib in config.ini does not exist! Please specify one of the following: online_free, deepl or offline_argos.')
+    except Exception as exc:
+        # When querying online services, we can always run into exceptions and availability issues, then this may crash the app, so we need to catch the exception
+        print('ERROR: an exception occurred while trying to translate text:')
+        traceback.print_exc()
+        transtext = 'ERROR'
     return transtext
 
 def translateRegion(sct, TBox, config, configFile):
@@ -421,16 +467,16 @@ def translateRegion(sct, TBox, config, configFile):
         print(ocrtext)
     #os.system('tesseract -l {imgpath} {srclang} {outputtxt}'.format(imgpath=os.path.abspath(imgtemppath), srclang=langsource, outputtxt='test'))  # alternative way to generate the OCR, by commandline call directly
 
-    # Translate using Google Translate through the googletrans (unofficial) wrapper module
+    # Translate using a machine translator
     if config['DEFAULT']['ocr_only'] == 'True':
         # Do not translate if ocr_only is enabled
         transtext = ''
     else:
-        # Send ocr text to Google Translate to get a translation
         if config['DEFAULT']['remove_line_returns'] == 'True':
             # If enabled, remove line returns automatically, so that we consider all sentences to be one (this can help the translator make more sense because it will have more context to work with).
             ocrtext = ocrtext.replace("\n", "")
-        transtext = gtranslate(ocrtext, langsource_trans, langtarget)
+        # Send ocr text to the machine translator
+        transtext = translate_any(config, ocrtext, langsource_trans, langtarget)
 
     if config['DEFAULT']['debug'] == 'True':
         print('Translated text:')
