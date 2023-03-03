@@ -45,7 +45,7 @@ setup(name = "pyugt",
     long_description = open("README.md", "r").read(),
     long_description_content_type = 'text/markdown',
     classifiers = [
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 5 - Production/Stable",
         "Topic :: Games/Entertainment",
         "Topic :: Utilities",
         "License :: OSI Approved :: MIT License",
