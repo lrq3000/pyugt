@@ -30,7 +30,7 @@ This software was inspired by the amazing work of Seth Robinson on [UGT (Univers
    
    * Either on Windows OSes, there is a prepackaged binary you can [download here (look for pyugt_vx.x.x_bin_win64.zip for 64-bit or win32 for 32-bit)](https://github.com/lrq3000/pyugt/releases).
    
-   * Either for other platform or if you want to run from sourcecode, you need to install a Python interpreter. [Anaconda](https://www.anaconda.com/distribution/) is a good one.
+   * Either for other platform or if you want to run from sourcecode, you need to install a Python interpreter. [Anaconda](https://www.anaconda.com/distribution/) is a good one, and [Miniconda3](https://docs.conda.io/en/latest/miniconda.html) is a smaller alternative that works too.
      
      Then, install this software:
      
@@ -67,6 +67,8 @@ or:
 
 * Tip4: In the translation box, it's possible to manually edit the OCR'ed text and force a new translation by clicking on the "Translate again" button. This can be useful when the OCR has wrongly detected non-letters characters.
 
+* Tip5: If you use blue light filtering softwares, disable them all before using the OCR, it will improve the contrast and hence the accuracy.
+
 **IMPORTANT NOTE:** The software is still in alpha stage (and may forever stay in this state). It IS working, but sometimes the hotkeys glitch and they do not work anymore. If this happens, simply focus the Python console and hit `CTRL+C` to force quit the app, then launch it again. The selected region is saved in the config file, so you don't have to redo this step everytime.
 
 ## Options
@@ -74,21 +76,24 @@ or:
 Here is a sample configuration file, with comments for the various additional options (such as logs for the OCR'ed text and translated text):
 
 ```ini
-[DEFAULT]
+[USER]
+# User parameters to configure the pyUGT program.
+# Note that parameters can be modified on-the-fly while the app is running, and changes will be reflected in realtime. For example, translators can be changed on-the-fly.
+
 # Path to Tesseract v5 binary. Easily install it from UB Mannheim installers: https://github.com/UB-Mannheim/tesseract/wiki
 path_tesseract_bin = C:\Program Files\Tesseract-OCR\tesseract.exe
 # Source language to translate from, for OCR. Both the Optical Recognition Character and the translator will search specifically for strings in this language, this reduces the amount of false positives (eg, translating strings in other languages that are more prominent or bigger on-screen). Language code can be found inside Tesseract tessdata folder (depends on what languages you chose in the installer).
 lang_source_ocr = jpn
-# Source language to translate from, for Google Translate. Use Google Translate language codes here. Look at googletrans doc in googletrans.LANGUAGES: https://readthedocs.org/projects/py-googletrans/downloads/pdf/latest/
+# Source language to translate from.
 lang_source_trans = ja
-# Target language to translate to. Must be a Google Translate language code (NOT a Tesseract code!).
+# Target language to translate to. Must be a language code for the target machine translator: either Google Translate language code (NOT a Tesseract code! See: https://readthedocs.org/projects/py-googletrans/downloads/pdf/latest/ ) or DeepL code (eg, en for Google Translator, Argos and most others, or EN-US for DeepL).
 lang_target = en
 # Machine translator library to use. Can be online_free to use free online APIs but which can be throttled (eg, Google Translate, DeepL free, Baidu, etc) ; deepl to use DeepL API with your own authkey (not throttled but limited number of translations in free plan, then need to pay for more, but it's best in class japanese->english machine translator) ; offline_argos for offline translation using Argos based on OpenNMT, which produces less accurate translations but is free, unlimited and does not require an internet connection.
 translator_lib = online_free
 # If online_free is the selected translator_lib, we can specify here the translator service to use. For a list of available services, see: https://github.com/UlionTse/translators#more-about-translators
 translator_lib_online_free_service = google
 # If translator_lib is set to deepl, the API authorization key must be set here
-translator_lib_deepl_authkey = f8a291-...
+translator_lib_deepl_authkey = fa14ef6c-d...
 # Hotkey to set the region on screen to capture future screenshots from. The region does not need to be precise, but must contain the region where text is likely to be found.
 hotkey_set_region_capture = ctrl+shift+F3
 # Hotkey to translate from the selected region

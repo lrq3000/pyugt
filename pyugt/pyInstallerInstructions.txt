@@ -1,7 +1,7 @@
 Instructions to build a standalone exe using pyInstaller:
 
-1. Install Anaconda or Miniconda
-2. Launch the Anaconda/Miniconda command prompt
+1. Install Anaconda or Miniconda3.
+2. Launch the Anaconda/Miniconda3 command prompt, or just a standard terminal if conda is in the PATH.
 3. conda create -n pyugtenv python=3.10
 Note: you can change the python version when a newer interpreter will be released. Creating a new venv is necessary to limit the number of packages in the environment, so that pyinstaller does not include a whole lot of unnecessary packages.
 4. conda activate pyugtenv
@@ -10,19 +10,24 @@ Note: pyugt needs to be up-to-date on pypi, otherwise replace this command by `p
 6. pip install --upgrade pyinstaller
 
 From this step on, you can reuse the same environment each time you want to rebuild the freezed binary:
-7. cd to the folder pyugt
+7. cd to the pyugt subfolder (the module one, where pyugt.py resides)
 8. conda activate pyugtenv
 9. if there is any dist or build or __pycache folder, delete them
-10. pyinstaller -F -c --hidden-import="pkg_resources.py2_warn" --add-data="_version.py;pyugt" pyugt.py
-11. Copy config.ini and config_internal.ini in the dist folder
-12. Zip it and distribute
+10. pyinstaller -D -c --hidden-import="pkg_resources.py2_warn" --hidden-import="pkg_resources.py3_warn" --add-data="_version.py;." pyugt.py
+Note: we used to bundle as one-file (with -F option), but in newer versions, the python app is unpackaged in a random temporary folder, which makes it difficult to bundle config files that are easily accessible and modifiable by the user. And also such apps are slower to launch than one-folder bundles. So we now bundle as a one-folder, using the -D option. We also force the console to stay open with the -c argument as it gives additional infos to the user, especially in case of errors.
+11. Copy config.ini and config_internal.ini in the dist/pyugt folder
+12. Zip the dist/pyugt folder and distribute it.
 
-To build a 32-bit binary, simply install Miniconda3 32-bit.
+To build a 32-bit binary, simply install Miniconda3 32-bit and repeat the steps above with the 32-bit interpreter.
 
-If when launching the executables you get the exception `ModuleNotFoundError: No module named 'pkg_resources.py2_warn'` then you need setuptools < 45.0.0
+Deprecated: For Python 2 packaging:
+    If when launching the executables you get the exception `ModuleNotFoundError: No module named 'pkg_resources.py2_warn'` then you need setuptools < 45.0.0
 
-pip install --upgrade 'setuptools<45.0.0'
+    pip install --upgrade 'setuptools<45.0.0'
 
-or add `--hidden-import="pkg_resources.py2_warn"` in the call to pyinstaller.
+    or add `--hidden-import="pkg_resources.py2_warn"` in the call to pyinstaller.
 
-See: https://github.com/pypa/setuptools/issues/1963
+    See: https://github.com/pypa/setuptools/issues/1963
+
+Binary size:
+    Before v0.6.0, binary size was 11 MB. Nowadays, with the inclusion of offline translation via argostranslate, binary size is over 200 MB. If Argos was excluded, likely the binary size could be much reduced, but the inclusion of Argos allows the binary to be future proof (independenc from online 3rd-party translation services).
