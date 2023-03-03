@@ -30,4 +30,4 @@ Deprecated: For Python 2 packaging:
     See: https://github.com/pypa/setuptools/issues/1963
 
 Binary size:
-    Before v0.6.0, binary size was 11 MB. Nowadays, with the inclusion of offline translation via argostranslate, binary size is over 200 MB. If Argos was excluded, likely the binary size could be much reduced, but the inclusion of Argos allows the binary to be future proof (independenc from online 3rd-party translation services).
+    Before v0.6.0, binary size was 11 MB. Nowadays, with the inclusion of offline translation via argostranslate, binary size is over 200 MB when zipped or bundled as a one-file, and almost 1GB if unzipped and bundled as a one-folder. If Argos was excluded, likely the binary size could be much reduced, but the inclusion of Argos allows the binary to be future proof (independenc from online 3rd-party translation services).
