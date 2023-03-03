@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2020 Stephen Larroque <LRQ3000@gmail.com>
+# Copyright (c) 2020-2023 Stephen Larroque <LRQ3000@gmail.com>
 
 # See:
 # https://docs.python.org/2/distutils/setupscript.html
@@ -60,6 +60,10 @@ setup(name = "pyugt",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
     ],
     include_package_data=True,  # use MANIFEST.in to include config file
     packages=['pyugt'],  # to force the wheel to use the MANIFEST.in

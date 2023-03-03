@@ -1,5 +1,13 @@
 # TODO
 
+* Translation future proofing:
+    * replace googletrans module with https://github.com/UlionTse/translators for free translation (fix current issues)
+    * add DeepL with authentication, as a paid option but without throttling nor risk of not working in the future (and it's also the best currently available japanese->english translator) https://github.com/DeepLcom/deepl-python
+    * add argos-translate as an offline translator
+    * future: when it will be released in a stable branch, add argos-translate v2 support of M2M-100 model to translate more robustly across non-english languages, follow https://community.libretranslate.com/t/multilingual-translation-with-ctranslate2-and-pre-trained-fairseq-models/178/26 and https://github.com/argosopentech/argos-translate/tree/v2
+
+* Add support for https://github.com/Artikash/Textractor (text hook extraction) instead of OCR. [Cannot work for emulated games](https://github.com/Artikash/Textractor/issues/418), but it will work for a lot of modern visual novel games.
+
 * Explore tesseract osd extraction to see if it's possible to retain the position (and hence potentially overlaying the translated text over a screenshot of the game).
   
   Checkout https://tesseract-ocr.github.io/tessdoc/ImproveQuality sparse text with OSD mode may work better
@@ -7,10 +15,9 @@
 * Find if a japanese -> english offline translator exists (if possible under opensource and cross-platform), to reduce the dependency on Google Translator.
 
 * Add image preprocessing (to increase contrast, detect edges, etc) to improve Tesseract OCR? Maybe also use Waifu2x to upscale kanjis?
-  
-  TODO: try https://github.com/wwtg99/image_filter
-  
-  TODO: try (but will slow down a lot): https://gist.github.com/Tydus/987239fea966438d8a873fbb083240d6#file-waifu2x-py
+    * BEST: take inspiration from Visual Novel OCR and provide a GUI to tweak HSV and binarization parameters, it will be a lot easier to tweak image manipulation visually for the lambda user than programmatically: https://visual-novel-ocr.sourceforge.io/#h.fikow7ge3ky
+    * TODO: try https://github.com/wwtg99/image_filter
+    * TODO: try (but will slow down a lot): https://gist.github.com/Tydus/987239fea966438d8a873fbb083240d6#file-waifu2x-py
 
 * Use Travis-CI and AppVeyor to automatically build binaries across platforms?
 
