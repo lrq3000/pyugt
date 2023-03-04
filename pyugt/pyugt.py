@@ -634,13 +634,6 @@ class OCRPreviewer(threading.Thread):
     def destroy(self):
         self.root.destroy()
 
-def showOCRPreview(RegionSelector, TBox, OPreviewer, config, config_internal):
-    if config['USER']['debug'] == 'True':
-        print('showOCRPreview triggered')
-
-    OPreviewer.switch_visibility()
-
-
 ### Main program
 def main():
     # Commandline arguments
@@ -689,7 +682,7 @@ def main():
     print('Hit %s to translate the region (make sure to close the translation window before requesting another one).' % config['USER']['hotkey_translate_region_capture'])
     keyboard.add_hotkey(config['USER']['hotkey_set_and_translate_region_capture'], selectAndTranslateRegion, args=(sct, RegionSelector, TBox, config, config_internal))
     print('Hit %s to set AND translate a region.' % config['USER']['hotkey_set_and_translate_region_capture'])
-    keyboard.add_hotkey(config['USER']['hotkey_show_ocr_preview'], showOCRPreview, args=(RegionSelector, TBox, OPreviewer, config, config_internal))
+    keyboard.add_hotkey(config['USER']['hotkey_show_ocr_preview'], OPreviewer.switch_visibility)
     print('Hit %s to show/hide OCR preview.' % config['USER']['hotkey_show_ocr_preview'])
 
     # Main waiting loop (we wait for hotkeys to be pressed)
