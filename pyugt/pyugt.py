@@ -305,7 +305,7 @@ class TranslationBox(threading.Thread):
 
     def run(self):
         # Launch GUI
-        root = tkinter.Tk()
+        root = tkinter.Tk()  # this is the main window, so we can use Tk() to initialize, instead of Toplevel() for others
         self.root = root
         # Clean up window on close
         root.protocol("WM_DELETE_WINDOW", self.closeWindow)
