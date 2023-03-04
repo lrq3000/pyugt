@@ -263,10 +263,12 @@ def selectRegion(sct, RegionSelector, config, config_internal, quitOnSelect=Fals
             config_internal.write(cfg)
 
 class TranslationBox(threading.Thread):
+    """Translation box, where the OCR'ed text will be copied to, and the translation will be displayed. It's essentially a text container, but it allows the user to manually correct the OCR'ed text before feeding it to the machine translator, and it can be done iteratively since we provide a Translate button to retry an erronous translation (also, the config file can be edited to change translator on-the-fly)."""
     def __init__(self, config, config_internal):
         threading.Thread.__init__(self)
         self.config = config
         self.config_internal = config_internal
+        self.previewer = None
         self.setDaemon(True)  # always close thread along with parent process
         self.start()
     
@@ -407,7 +409,7 @@ def translate_any(config, ocrtext, langsource_trans, langtarget):
     return transtext
 
 def translateRegion(sct, TBox, config, config_internal):
-    """Capture a screenshot of a previously defined region, detect with Tesseract OCR and translate via Google Translator"""
+    """Capture a screenshot of a previously defined region, preprocess to increase contrast for OCR, detect text out of image using Tesseract OCR and finally translate via a machine translator"""
     # Reload config file, so that user can change parameters on-the-fly
     config = read_config(config.fullpath)
     config_internal = read_config(config_internal.fullpath)
@@ -463,11 +465,16 @@ def translateRegion(sct, TBox, config, config_internal):
             img = ImageMath.eval('255 - (a)', a=img.convert('1')).convert('L')  # convert back to greyscale, else can't save a binary image and is buggy for PILLOW and maybe for Tesseract, so better be safe
 
     # Save preprocessed screenshot if in debug mode
-    if config['USER']['debug'] == 'True':
+    preview_on = TBox.previewer is not None and TBox.previewer.shown
+    if config['USER']['debug'] == 'True' or preview_on:
         # Get path to temporary image file
         imgtemppath = 'debugtranslatepreproc.png'
         # Save to the picture file
         img.save(imgtemppath, 'PNG')
+        # Refresh OCR preview image is the preview window is there
+        # Since we are using threads, it's difficult to pass objects between threads, so as a workaround we save into a temporary file and reopen it in the OCR Preview window thread
+        if preview_on:
+            TBox.previewer.preview(imgtemppath)
 
     # Tesseract OCR to extract text, directly from a PIL image object thanks to the pytesseract wrapper. Otherwise, we would need to save to a temporary file to pass onto Tesseract, as there's no other way to directly pipe without pytesseract
     ocrtext = pytesseract.image_to_string(img, lang=langsource_ocr, nice=1)
@@ -551,6 +558,89 @@ def read_config(configFileArg=None, default_path='config.ini'):
     # Return the fully loaded config file
     return config
 
+class OCRPreviewer(threading.Thread):
+    """Display small window of the size of the input image, and refresh it anytime by supplying a new image"""
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.setDaemon(True)  # always close thread along with parent process
+        self.start()
+
+    def run(self):
+        # Create a Toplevel() dialog window, we can create multiple ones
+        root = tkinter.Toplevel()  # use Toplevel() instead of Tk() to reopen the same dialog multiple times and to avoid the pyimage2 does not exist error, see also: https://github.com/dangillet/PythonFaqFr/blob/master/doc/tkinter.md and https://stackoverflow.com/questions/39458318/how-to-allow-a-tkinter-window-to-be-opened-multiple-times and https://stackoverflow.com/questions/26097811/image-pyimage2-doesnt-exist
+        self.root = root
+        # Create empty canvas
+        self.canvas = None
+        # Create empty photoimage for reuse
+        self.photoimage = None
+        # Save current window state (shown or hidden?)
+        self.shown = False
+        # Allow to be resizable
+        root.resizable(True, True)
+        # Set title
+        root.title("OCR preview")
+        # Default size
+        root.geometry('300x300')
+        # hide root dialog
+        root.overrideredirect(1)
+        root.withdraw()
+        # Launch the window
+        self.root.mainloop()
+
+    def preview(self, image_path):
+        """Load an image and display in the window, delete any previous image in the canvas, and resize the window to the image size"""
+        # Open image using Pillow
+        pilImage = Image.open(image_path)
+        # Get screen size
+        w, h = pilImage.size
+        # Set canvas to be fullscreen
+        self.root.geometry("%dx%d+0+0" % (w, h))
+        # Initialize/reset canvas
+        if self.canvas is not None:
+            # Clear and reuse canvas if previously created
+            canvas = self.canvas
+            canvas.delete('all')
+        else:
+            # Else create it
+            canvas = tkinter.Canvas(self.root,width=w,height=h)  # could alternatively use a Label? https://www.tutorialspoint.com/how-can-i-display-an-image-using-pillow-in-tkinter
+            self.canvas = canvas
+        # Prepare the canvas to load the screenshot image supplied as argument in pilImage
+        canvas.pack()
+        canvas.configure(background='black')
+        if self.photoimage is not None:
+            del self.photoimage
+        image = ImageTk.PhotoImage(pilImage)
+        self.photoimage = image
+        #else:
+        #    image = self.photoimage.paste(pilImage)
+        imagesprite = canvas.create_image(w/2,h/2,image=image)
+
+    def show(self):
+        # Show dialog if it was closed/hidden
+        self.root.deiconify()  # opposite of .withdraw()
+        self.shown = True
+
+    def hide(self):
+        self.root.withdraw()
+        self.shown = False
+
+    def switch_visibility(self):
+        """Display window is currently hidden, and inversely"""
+        if self.shown:
+            self.hide()
+        else:
+            self.show()
+
+    def destroy(self):
+        self.root.destroy()
+
+def showOCRPreview(RegionSelector, TBox, OPreviewer, config, config_internal):
+    if config['USER']['debug'] == 'True':
+        print('showOCRPreview triggered')
+
+    OPreviewer.switch_visibility()
+
+
 ### Main program
 def main():
     # Commandline arguments
@@ -589,6 +679,8 @@ def main():
     # Initialize GUI windows
     RegionSelector = showPILandSelect()
     TBox = TranslationBox(config, config_internal)
+    OPreviewer = OCRPreviewer()
+    TBox.previewer = OPreviewer  # attach the OCR Previewer to the translation box, so that we can call the previewer when translating
 
     # Set global hotkeys, loading from config file
     keyboard.add_hotkey(config['USER']['hotkey_set_region_capture'], selectRegion, args=(sct, RegionSelector, config, config_internal))  # Do NOT set suppress=True, else this may raise exceptions!
@@ -597,6 +689,8 @@ def main():
     print('Hit %s to translate the region (make sure to close the translation window before requesting another one).' % config['USER']['hotkey_translate_region_capture'])
     keyboard.add_hotkey(config['USER']['hotkey_set_and_translate_region_capture'], selectAndTranslateRegion, args=(sct, RegionSelector, TBox, config, config_internal))
     print('Hit %s to set AND translate a region.' % config['USER']['hotkey_set_and_translate_region_capture'])
+    keyboard.add_hotkey(config['USER']['hotkey_show_ocr_preview'], showOCRPreview, args=(RegionSelector, TBox, OPreviewer, config, config_internal))
+    print('Hit %s to show/hide OCR preview.' % config['USER']['hotkey_show_ocr_preview'])
 
     # Main waiting loop (we wait for hotkeys to be pressed)
     print('Press CTRL+C or close this window to quit.')

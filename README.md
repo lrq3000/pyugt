@@ -102,6 +102,8 @@ hotkey_set_region_capture = ctrl+shift+F3
 hotkey_translate_region_capture = ctrl+F3
 # Hotkey to set a region AND translate it directly on mouse click release. This is useful for games where the contrast between the text and background is bad (eg, transparent dialog box), so reselecting a tight region for each dialogue may yield better results, this is a faster way to do that with one shortcut instead of 2.
 hotkey_set_and_translate_region_capture = ctrl+F2
+# Hotkey to preview in a window the postprocessed screenshot that is fed to OCR, this helps with tweaking parameters here and see how it improve the text contrast
+hotkey_show_ocr_preview = ctrl+p
 # On which monitor the screen region capture should display? If you have only one screen, leave this to 0 (first monitor)
 monitor = 0
 # Save all OCR'ed text into a log file? Set a path or file name different than None to activate (exemple: log_ocr = log_ocr.txt). This can be very useful for human translators to gather game text data.
