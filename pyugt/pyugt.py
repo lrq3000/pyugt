@@ -524,7 +524,7 @@ def selectAndTranslateRegion(sct, RegionSelector, TBox, config, config_internal)
 
 def show_errorbox(msg):
     """Show an error box"""
-    root = tkinter.Toplevel()
+    root = tkinter.Toplevel()  # when we want to display another window on top of the root, such as an error box, then a TopLevel() is to be used instead of Tk(), but do not ever destroy these children windows, only hide them when done, so we can reuse and show them later
     root.withdraw()
     messagebox.showerror("Error", msg)
     # DEPRECATED: do not destroy anymore as we prefer now to keep windows always loaded and just updated, this avoids memory leaks with Tkinter (as it seems it's not possible to completely destroy Tkinter in a thread)
@@ -567,7 +567,7 @@ class OCRPreviewer(threading.Thread):
 
     def run(self):
         # Create a Toplevel() dialog window, we can create multiple ones
-        root = tkinter.Toplevel()  # use Toplevel() instead of Tk() to reopen the same dialog multiple times and to avoid the pyimage2 does not exist error, see also: https://github.com/dangillet/PythonFaqFr/blob/master/doc/tkinter.md and https://stackoverflow.com/questions/39458318/how-to-allow-a-tkinter-window-to-be-opened-multiple-times and https://stackoverflow.com/questions/26097811/image-pyimage2-doesnt-exist
+        root = tkinter.Toplevel()  # use Toplevel() instead of Tk() to reopen the same dialog multiple times and to avoid the pyimage2 does not exist error, see also: https://github.com/dangillet/PythonFaqFr/blob/master/doc/tkinter.md and https://stackoverflow.com/questions/39458318/how-to-allow-a-tkinter-window-to-be-opened-multiple-times and https://stackoverflow.com/questions/26097811/image-pyimage2-doesnt-exist -- but then there are issues with this approach, so we want each window to be separated and not interact together directly but only indirectly through files such as config files and images: https://stackoverflow.com/questions/45799121/runtimeerror-calling-tcl-from-different-appartment-tkinter-and-threading
         self.root = root
         # Create empty canvas
         self.canvas = None
@@ -585,7 +585,7 @@ class OCRPreviewer(threading.Thread):
         root.overrideredirect(1)
         root.withdraw()
         # Launch the window
-        self.root.mainloop()
+        # self.root.mainloop()  # unnecessary when there is already another Tk() root, which here is the TranslationBox!
 
     def preview(self, image_path):
         """Load an image and display in the window, delete any previous image in the canvas, and resize the window to the image size"""
