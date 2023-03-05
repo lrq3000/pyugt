@@ -7,6 +7,7 @@ Note: you can change the python version when a newer interpreter will be release
 4. conda activate pyugtenv
 5. pip install --upgrade pyugt
 Note: pyugt needs to be up-to-date on pypi, otherwise replace this command by `python setup.py pyugt` to use the local version.
+Note2: if trying to compile for another platform such as 32-bits, then it may be better to install from local machine instead of from pypi, which can be done with: `pip.exe install -e .` without the ticks.
 6. pip install --upgrade pyinstaller
 
 From this step on, you can reuse the same environment each time you want to rebuild the freezed binary:

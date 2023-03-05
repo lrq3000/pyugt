@@ -296,7 +296,7 @@ class TranslationBox(threading.Thread):
         self.config_internal = read_config(self.config_internal.fullpath)
         # Update ocrtext with the textbox input
         self.ocrtext = self.txtsrc.get("1.0","end-1c")  # end-1c trick from https://stackoverflow.com/questions/14824163/how-to-get-the-input-from-the-tkinter-text-box-widget
-        # Translate using Google Translate through the googletrans (unofficial) wrapper module
+        # Translate using machine translation (various several translators API are supported)
         self.transtext = translate_any(self.config, self.ocrtext, self.config['USER']['lang_source_trans'], self.config['USER']['lang_target'])
         # Clear up the translation textbox
         self.txtout.delete("1.0", tkinter.END)
