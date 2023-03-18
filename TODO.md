@@ -5,7 +5,7 @@
     * [x] add DeepL with authentication, as a paid option but without throttling nor risk of not working in the future (and it's also the best currently available japanese->english translator) https://github.com/DeepLcom/deepl-python
     * [x] add argos-translate as an offline translator
         * [] implement preprocessing tricks as described [here](https://skeptric.com/python-offline-translation/) to improve accuracy and reduce hallucinations?
-        * [] Implement Marian Machine Translation (powering Microsoft Translator) as described [here](https://skeptric.com/python-offline-translation/)?
+        * [] Implement Marian Machine Translation (powering Microsoft Translator) offline translator as an alternative to argos-translate, as described [here](https://skeptric.com/python-offline-translation/)? - Already implemented by ByJacob, can merge! https://github.com/ByJacob/pyugt -- But MMT is a LOT more space consuming than Argos Translate so packaging in a binary may result in a huge > 4GB binary and up to 8 GB with both Argos Translate and MMT, whereas now it's already 1GB with just Argos Translate.
     * [] future: when it will be released in a stable branch, add argos-translate v2 support of M2M-100 model to translate more robustly across non-english languages, follow https://community.libretranslate.com/t/multilingual-translation-with-ctranslate2-and-pre-trained-fairseq-models/178/26 and https://github.com/argosopentech/argos-translate/tree/v2
 
 * [] Add support for https://github.com/Artikash/Textractor (text hook extraction) instead of OCR. [Cannot work for emulated games](https://github.com/Artikash/Textractor/issues/418), but it will work for a lot of modern visual novel games.
