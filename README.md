@@ -146,6 +146,8 @@ On the other hand, there are several advantages to our approach:
 
 * [Universal Game Translator](https://github.com/SethRobinson/UGT) (Windows, opensource) - the inspiration for this project.
 
+* [pyUGT fork by ByJacob](https://github.com/ByJacob/pyugt) (Windows, Linux, MacOS, opensource) - fork of this project but implementing the Marian Machine Translation offline translator instead of Argos-Translate. MMT is sometimes more accurate than Argos-Translate, but is slower and more space consuming. Both offline translators however remain less accurate than DeepL online translator.
+
 * [Capture2Text](http://capture2text.sourceforge.net/) (Windows, opensource) - OCR on-screen text, but no translation.
 
 * [OwlOCR](https://frankbyte.com/owlocr/) (MacOSX, freeware) - Similar to Capture2Text, OCR on-screen text, no translation.
