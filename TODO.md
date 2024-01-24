@@ -1,5 +1,9 @@
 # TODO
 
+* Make the config file easier to find and edit:
+    * [ ] modify read_config() to show a Tk Yes-No dialog to create a new config file in the current folder pyugt is launched, using the config.ini provided with pyugt (so that it can always be duplicated)
+    * [ ] add a button on the GUI to open the config file in the default text editor of the OS.
+
 * Translation future proofing:
     * [x] replace googletrans module with https://github.com/UlionTse/translators for free translation (fix current issues)
     * [x] add DeepL with authentication, as a paid option but without throttling nor risk of not working in the future (and it's also the best currently available japanese->english translator) https://github.com/DeepLcom/deepl-python
