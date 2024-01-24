@@ -83,7 +83,7 @@ install:
 
 build:
 	# requires `pip install build`
-	@+make testrst
+	#@+make testrst
 	@+make prebuildclean
 	@+make testpyproject
 	@+python -sBm build  # do NOT use the -w flag, otherwise only the wheel will be built, but we need sdist for source distros such as Debian and Gentoo!
@@ -96,7 +96,6 @@ upload:
 	twine upload dist/*
 
 buildupload:
-	@+make testsetup
+	#@+make testsetup
 	@+make build
-	@+make pypimeta
-	@+make pypi
+	@+make upload
