@@ -233,8 +233,8 @@ def selectRegion(sct, RegionSelector, config, config_internal, quitOnSelect=Fals
         print('selectRegion triggered')
 
     # Grab whole desktop screenshot
-    # Grab screenshot
-    sct_img = sct.grab(sct.monitors[int(config['USER']['monitor'])])
+    monitor = int(config['USER']['monitor'])
+    sct_img = sct.grab() if monitor < -1 else sct.grab(mon=monitor)  # sct.grab() captures the first monitor, sct.grab(mon=-1) captures all monitors, sct.grab(mon=0) captures monitor 0, etc.
     # Convert to a PIL Image (else we can't show it on screen)
     img = Image.frombytes("RGB", sct_img.size, sct_img.bgra, "raw", "BGRX")
 
@@ -424,11 +424,13 @@ def translateRegion(sct, TBox, config, config_internal):
     langsource_ocr = config['USER']['lang_source_ocr']
     langsource_trans = config['USER']['lang_source_trans']
     langtarget = config['USER']['lang_target']
-    # Grab whole desktop screenshot
-    # Grab screenshot
+    # Grab screenshot of a specific region
     x0,y0,x1,y1 = ast.literal_eval(config_internal['INTERNAL']['region'])
-    screenregion = {'top': y0, 'left': x0, 'width': x1-x0, 'height': y1-y0}
-    sct_img = sct.grab(screenregion)
+    screenregion = {'top': y0, 'left': x0, 'width': x1-x0, 'height': y1-y0}  # region to capture
+    monitor = int(config['USER']['monitor'])  # get user selected monitor (-2 for first monitor, -1 for all monitors, 0 for monitor 0, etc).
+    if monitor >= 0:  # if the region to capture is on another monitor than the default one, the user can specify it
+        screenregion['mon'] = monitor  # sct.grab() captures the first monitor, sct.grab(mon=-1) captures all monitors, sct.grab(mon=0) captures monitor 0, etc.   
+    sct_img = sct.grab(screenregion)  # grab screenshot of the region
     # Convert to a PIL Image (else we can't show it on screen)
     img = Image.frombytes("RGB", sct_img.size, sct_img.bgra, "raw", "BGRX")
 
