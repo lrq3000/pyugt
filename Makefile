@@ -1,85 +1,102 @@
 # This Makefile runs tests and builds the package to upload to pypi
-# To use this Makefile, pip install py-make
-# You also need to pip install also other required modules: `pip install flake8 nose coverage twine`
-# Then, cd to this folder, and type `pymake -p` to list all commands, then `pymake <command>` to run the related entry.
-
-.PHONY:
-	alltests
-	all
-	flake8
-    testsetuppost
-    testtox
-	distclean
-	coverclean
-	prebuildclean
-	clean
-    toxclean
-	installdev
-	install
-	build
-	buildupload
-	pypi
-	help
+# To use this Makefile, pip install py3make
+# then do: pymake <command>
+# or: python.exe -m pymake <command>
+# You also need to pip install also other required modules: `pip install flake8 coverage twine pytest pytest-cov validate-pyproject[all] pytest-xdist rstcheck` , or simply `pip install --editable .[test,testmeta]`
+#
+# IMPORTANT: for compatibility with `python setup.py make [alias]`, ensure:
+# 1. Every alias is preceded by @[+]make (eg: @make alias)
+# 2. A maximum of one @make alias or command per line
+#
+# Sample makefile compatible with `python setup.py make`:
+#```
+#all:
+#	@make test
+#	@make install
+#test:
+#	nosetest
+#install:
+#	python setup.py install
+#```
 
 help:
 	@+make -p
 
 alltests:
-	@+make test
-	@+make flake8
+	@+make testcoverage
 	@+make testsetup
 
 all:
-	@+make alltests
-	@+make build
+	@make alltests
+	@make build
 
-flake8:
-	@+flake8 -j 8 --count --statistics --exit-zero .
+prebuildclean:
+	@+python -c "import shutil; shutil.rmtree('build', True)"
+	@+python -c "import shutil; shutil.rmtree('dist', True)"
+	@+python -c "import shutil; shutil.rmtree('pyugt.egg-info', True)"  # very important to delete egg-info before any new build or pip install, otherwise may cause an error that multiple egg-info folders are present, or it may build using old definitions
 
-testnose:
-    nosetests -vv --with-coverage
+coverclean:
+	@+python -c "import os; os.remove('.coverage') if os.path.exists('.coverage') else None"
+	@+python -c "import shutil; shutil.rmtree('__pycache__', True)"
+	@+python -c "import shutil; shutil.rmtree('tests/__pycache__', True)"
 
-testtox:
-    # Test for multiple Python versions
-	tox --skip-missing-interpreters -p all
+test:
+	#tox --skip-missing-interpreters
+    pytest
+
+testpyproject:
+	validate-pyproject pyproject.toml -v
 
 testsetuppost:
 	twine check "dist/*"
 
-distclean:
-	@+make coverclean
-	@+make prebuildclean
-	@+make clean
-    @+make toxclean
-prebuildclean:
-	@+python -c "import shutil; shutil.rmtree('build', True)"
-	@+python -c "import shutil; shutil.rmtree('dist', True)"
-	@+python -c "import shutil; shutil.rmtree('pyugt.egg-info', True)"
-coverclean:
-	@+python -c "import os; os.remove('.coverage') if os.path.exists('.coverage') else None"
-	@+python -c "import shutil; shutil.rmtree('__pycache__', True)"
-clean:
-	@+python -c "import os, glob; [os.remove(i) for i in glob.glob('*.py[co]')]"
-toxclean:
-	@+python -c "import shutil; shutil.rmtree('.tox', True)"
+testrst:
+	rstcheck README.rst
 
+testcoverage:
+	@+make coverclean
+	coverage run --branch -m pytest -v
+	coverage report -m
+
+testmalloc:
+	@+python -X dev -X tracemalloc=5 -m pytest
+
+testasv:
+	asv run -j 8 HEAD~3..HEAD
+	@make viewasv
+
+testasvfull:
+	asv run -j 8 v1.0.0..master
+	@make testasv
+
+viewasv:
+	asv publish
+	asv preview
 
 installdev:
-	@+python setup.py develop --uninstall
-	@+python setup.py develop
+	@+make prebuildclean
+	@+python -m pip install --upgrade --editable .[test,testmeta] --verbose --use-pep517
 
 install:
-	@+python setup.py install
+	@+make prebuildclean
+	@+python -m pip install --upgrade . --verbose --use-pep517
 
 build:
+	# requires `pip install build`
+	@+make testrst
 	@+make prebuildclean
-	@+python setup.py sdist bdist_wheel
-	#@+python setup.py bdist_wininst
-    pymake testsetuppost  # @+make does not work here, dunno why
+	@+make testpyproject
+	@+python -sBm build  # do NOT use the -w flag, otherwise only the wheel will be built, but we need sdist for source distros such as Debian and Gentoo!
+	@+make testsetuppost
 
-pypi:
+buildwheelhouse:
+	cibuildwheel --platform auto
+
+upload:
 	twine upload dist/*
 
 buildupload:
+	@+make testsetup
 	@+make build
+	@+make pypimeta
 	@+make pypi

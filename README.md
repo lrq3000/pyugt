@@ -40,7 +40,7 @@ This software was inspired by the amazing work of Seth Robinson on [UGT (Univers
      
      `python setup.py develop`
      
-     Note the software was tested on Windows 10 x64 with Python 3.10 (Anaconda). It should also work on other Python versions and on Linux but this was not tested (please let me know if you try on Linux!).
+     Note the software was tested on Windows 10 x64 with Python 3.10 (Anaconda) and 3.11. It was tested on Linux by other users but is not regularly tested.
 
 Language packs for the Tesseract are downloadable directly from the installer. Language packs for the offline machine translator Argos are downloaded on-the-fly when required by the user, but can also be downloaded beforehand from [this index](https://www.argosopentech.com/argospm/index/), which also provides IPFS links that are future-proof, in case the on-the-fly downloads fail.
 

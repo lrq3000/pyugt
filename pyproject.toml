@@ -1,0 +1,143 @@
+# SPDX-License-Identifier: MIT
+
+[build-system]
+# never uppercap requirements unless we have evidence it won't work https://iscinumpy.dev/post/bound-version-constraints/ 
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]  # beware if using setuptools: setup.py still gets executed, and even if pyproject.toml fields take precedence, if there is any code error in setup.py, building will fail!
+name = "pyugt"
+dynamic = ["version"]  # see PEP 440 https://peps.python.org/pep-0440/#pre-releases and https://packaging.python.org/en/latest/guides/single-sourcing-package-version/
+description = "Universal Game Translator from on-screen text in Python"
+authors = [
+    {name = "Stephen Karl Larroque", email = "lrq3000@gmail.com"},
+    ]
+maintainers = [
+    {name = "Stephen Karl Larroque", email = "lrq3000@gmail.com"},
+    ]
+requires-python = ">=3.7"
+license = {text = "MIT License"} # { file = "LICENSE" }
+keywords = ["translation", "translator", "ocr", "optical characters recognition", "automatic", "autotranslate", "game", "games", "documents", "screen", "universal game translator"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Topic :: Games/Entertainment",
+    "Topic :: Utilities",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Microsoft :: Windows",
+    'Operating System :: MacOS :: MacOS X',
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    'PILLOW>=6.1.0',
+    'keyboard>=0.13.4',
+    'mss>=5.0.0',
+    'pytesseract>=0.3.3',
+    'translators>=5.5.6',
+    'deepl>=1.14.0',
+    'argostranslate>=1.8.0',
+    'tenacity>=8.2.2',
+]
+
+[tool.setuptools.dynamic]
+version = {attr = "pyugt._version.__version__"}  # see: https://packaging.python.org/en/latest/guides/single-sourcing-package-version/
+
+[project.urls]
+Homepage = "https://github.com/lrq3000/pyugt"
+Documentation = "https://github.com/lrq3000/pyugt/blob/master/README.md"
+"Source" = "https://github.com/lrq3000/pyugt"
+Tracker = "https://github.com/lrq3000/pyugt"
+Download = "https://github.com/lrq3000/pyugt/releases"
+#Changelog = "https://url/changelog"
+
+[project.optional-dependencies]
+test = [  # minimum dependencies to run tests
+#    "pytest",
+#    "pytest-cov",
+]
+testmeta = [  # dependencies to test meta-data
+    "build",
+    "twine",
+    "validate-pyproject",
+]
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[project.scripts]
+pyugt = "pyugt.pyugt:main"  # create a binary that will be callable directly from the console
+
+#[tool.setuptools]
+#package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+# IMPORTANT: systematically delete `src/<project.name>.egg-info` folder before rebuilding, otherwise the list of included files will not get updated (it's in `SOURCES.txt` file in this folder)
+where = ["src"]
+include = ["pyugt*"]
+#namespaces = true  # already the default
+
+[tool.setuptools.package-data]
+# Check the <mypkg>.egg-info/SOURCES.txt file generated after a `build` or `pip install` to check if the following files are correctly included in the sdist.
+# Check also the list of files included by default: https://packaging.python.org/en/latest/guides/using-manifest-in/
+"*" = [
+    "LICENSE*",
+    "README*",
+]
+
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=importlib",
+    "-ra",
+    "--strict-markers",
+]
+xfail_strict = true
+testpaths = "tests"  # default path to look for tests if nothing is specified in commandline, make sure the test files are named "test_xxxx.py" and not "tests_xxx" plural or any other pattern, otherwise you have to specify how the test files are named too, since pytest makes some specific assumptions (and they are different from nosetests, which assumed files named with the plural "tests_xxxx").
+filterwarnings = [
+    "once::Warning",
+]
+required_plugins = "pytest-cov"
+
+[tool.coverage.run]
+branch = true
+relative_files = true
+include = [
+    "*/pyugt.py",
+    ]
+
+[tool.coverage.paths]
+source = ["src"]
+
+[tool.coverage.report]  # Beware: you need to delete .coveragerc if you have one, otherwise .coveragerc will take precedence!
+show_missing = true
+include = [
+    "*/pyugt.py",
+]
+omit = [
+    "*/python?.?/*",
+    "*/site-packages/nose/*",
+    "*/opt/python/pypy*",
+    "*/tests/*",
+]
+exclude_lines = [
+    # a more strict default pragma
+    "\\# pragma: no cover\\b",
+
+    # allow defensive code
+    "^\\s*raise AssertionError\\b",
+    "^\\s*raise NotImplementedError\\b",
+    "^\\s*return NotImplemented\\b",
+    "^\\s*raise$",
+
+    # typing-related code
+    "^if (False|TYPE_CHECKING):",
+    ": \\.\\.\\.(\\s*#.*)?$",
+    "^ +\\.\\.\\.$",
+    "-> ['\"]?NoReturn['\"]?:",
+]
