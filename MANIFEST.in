@@ -1,4 +1,4 @@
 include LICENSE
 include README.md
-include pyugt/config.ini
-include pyugt/config_internal.ini
+include src/pyugt/config.ini
+include src/pyugt/config_internal.ini
