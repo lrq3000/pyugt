@@ -234,7 +234,8 @@ def selectRegion(sct, RegionSelector, config, config_internal, quitOnSelect=Fals
 
     # Grab whole desktop screenshot
     monitor = int(config['USER']['monitor'])
-    sct_img = sct.grab() if monitor < -1 else sct.grab(mon=monitor)  # sct.grab() captures the first monitor, sct.grab(mon=-1) captures all monitors, sct.grab(mon=0) captures monitor 0, etc.
+    with mss.mss() as sct2:  # TODO: workaround for the thread unsafe issue https://github.com/BoboTiG/python-mss/issues/273
+        sct_img = sct2.grab(sct2.monitors[monitor]) if monitor >= 0 else 1 # sct.shot() captures the first monitor, sct.shot(mon=-1) captures all monitors, but they cannot capture a specific region. Under the hood, sct.shot() uses sct.save(), which itself calls sct.grab(), itself calling PIL.ImageGrab.grab(), with sct.grab(1) capturing the first monitor (it's 1-indexed, not 0! sct.monitors[0] should contain the list of all monitors), etc. - note that only sct.shot() can capture automatically the first monitor or all monitors, not grab() which on the other hand can capture a specific region on screen if provided a bounding box
     # Convert to a PIL Image (else we can't show it on screen)
     img = Image.frombytes("RGB", sct_img.size, sct_img.bgra, "raw", "BGRX")
 
@@ -428,9 +429,9 @@ def translateRegion(sct, TBox, config, config_internal):
     x0,y0,x1,y1 = ast.literal_eval(config_internal['INTERNAL']['region'])
     screenregion = {'top': y0, 'left': x0, 'width': x1-x0, 'height': y1-y0}  # region to capture
     monitor = int(config['USER']['monitor'])  # get user selected monitor (-2 for first monitor, -1 for all monitors, 0 for monitor 0, etc).
-    if monitor >= 0:  # if the region to capture is on another monitor than the default one, the user can specify it
-        screenregion['mon'] = monitor  # sct.grab() captures the first monitor, sct.grab(mon=-1) captures all monitors, sct.grab(mon=0) captures monitor 0, etc.   
-    sct_img = sct.grab(screenregion)  # grab screenshot of the region
+    screenregion['mon'] = monitor if monitor >= 0 else 1  # if the region to capture is on another monitor than the default one, the user can specify it. Note that only sct.grab() can capture a subregion on the screen provided a bounding box, but requires a monitor, unlike sct.shot() / sct.save().
+    with mss.mss() as sct2:  # TODO: workaround for the thread unsafe issue https://github.com/BoboTiG/python-mss/issues/273
+        sct_img = sct2.grab(screenregion)  # grab screenshot of the region
     # Convert to a PIL Image (else we can't show it on screen)
     img = Image.frombytes("RGB", sct_img.size, sct_img.bgra, "raw", "BGRX")
 
