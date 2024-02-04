@@ -38,7 +38,10 @@ This software was inspired by the amazing work of Seth Robinson on [UGT (Univers
      
      Or for developers who want to run it locally, after downloading the archive from Github, unzip it anywhere, cd in the folder and type:
      
-     `python setup.py develop`
+     ```
+     pip install py3make
+     py3make installdev
+     ```
      
      Note the software was tested on Windows 10 x64 with Python 3.10 (Anaconda) and 3.11. It was tested on Linux by other users but is not regularly tested.
 
