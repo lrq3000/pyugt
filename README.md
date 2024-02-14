@@ -24,7 +24,7 @@ This software was inspired by the amazing work of Seth Robinson on [UGT (Univers
 
 ## How to install & update
 
-1. First, install Tesseract v5, installers are provided by [UB Mannheim](https://github.com/UB-Mannheim/tesseract/wiki). Make sure to install the additional languages you want to translate from (eg, Japanese, there is support for both horizontal and vertical Kanji).
+1. First, install Tesseract v5 (an open-source OCR engine), installers are provided by [UB Mannheim](https://github.com/UB-Mannheim/tesseract/wiki). Make sure to install the additional languages you want to translate from (eg, Japanese, there is support for both horizontal and vertical Kanji). Alternatively, on most platform, Tesseract can be installed with the default package manager, eg on Debian/Ubuntu: `apt-get install tesseract`. On Windows, [Chocolatey](https://chocolatey.org/) can be used: `choco install --pre tesseract`.
 
 2. Then install pyugt:
    
