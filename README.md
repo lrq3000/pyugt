@@ -159,7 +159,7 @@ On the other hand, there are several advantages to our approach:
 
 * [Translator++](https://dreamsavior.net/download/), a free but closed source app to translate non emulated games with access to the text, can leverage automatic machine translation.
 
-* [ocrTranslator](https://github.com/Azornes/ocrTranslator), a Python 3 desktop software that can be used like pyugt to OCR the same text zone (supports local OCR engines such as Tesseract and rapidOCR!) and also translate (but it only supports online translation services, not local ones, but it supports online GPT LLMs services). Includes a "game mode" to show the translated text as an overlay (similar to SethRobinson's original UGT).
+* [ocrTranslator](https://github.com/Azornes/ocrTranslator), a Python 3 desktop software that can be used like pyugt to OCR the same text zone (supports local OCR engines such as Tesseract and rapidOCR!) and also translate (but it only supports online translation services, not local ones, but it supports online GPT LLMs services). Includes a "game mode" to show the translated text as an overlay (similar to SethRobinson's original UGT). Tested only on Windows 10, support for other platforms is unclear (although it is using tkinter, so it should be easy to make crossplatform).
 
 ## License
 
